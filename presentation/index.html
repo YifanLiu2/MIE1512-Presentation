@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can LLM Judgment Capture Human Preference?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #151b2e;
+    --surface2: #1e2842;
+    --surface3: #283352;
+    --text: #e8ecf4;
+    --text-dim: #7b8baa;
+    --accent: #4f8cff;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+    user-select: none;
+  }
+
+  /* ===== SLIDE ENGINE ===== */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4vh 7vw;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(60px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ===== FRAGMENTS (click-to-reveal) ===== */
+  .frag {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+
+  .frag.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .frag-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .frag-left.show { opacity: 1; transform: translateX(0); }
+
+  .frag-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .frag-right.show { opacity: 1; transform: translateX(0); }
+
+  .frag-pop {
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .frag-pop.show { opacity: 1; transform: scale(1); }
+
+  .frag-fade {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .frag-fade.show { opacity: 1; }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+    z-index: 200;
+  }
+
+  /* ===== SLIDE COUNTER ===== */
+  .counter {
+    position: fixed;
+    bottom: 12px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    z-index: 200;
+  }
+
+  /* ===== CONTROLS HINT ===== */
+  .hint {
+    position: fixed;
+    bottom: 12px;
+    left: 20px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    opacity: 0.5;
+    z-index: 200;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--accent);
+  }
+
+  p { margin-bottom: 0.8rem; font-size: 1.05rem; line-height: 1.6; }
+
+  strong { color: #fff; }
+
+  em { color: var(--text-dim); }
+
+  /* ===== LAYOUTS ===== */
+  .center { text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+  .cols { display: grid; gap: 2rem; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-60-40 { grid-template-columns: 3fr 2fr; }
+  .cols-40-60 { grid-template-columns: 2fr 3fr; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .card-glow-blue { border-color: rgba(79,140,255,0.3); box-shadow: 0 0 30px rgba(79,140,255,0.08); }
+  .card-glow-green { border-color: rgba(52,211,153,0.3); box-shadow: 0 0 30px rgba(52,211,153,0.08); }
+  .card-glow-red { border-color: rgba(248,113,113,0.3); box-shadow: 0 0 30px rgba(248,113,113,0.08); }
+  .card-glow-yellow { border-color: rgba(251,191,36,0.3); box-shadow: 0 0 30px rgba(251,191,36,0.08); }
+  .card-glow-purple { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 30px rgba(167,139,250,0.08); }
+
+  /* ===== RQ BOX ===== */
+  .rq {
+    background: linear-gradient(135deg, rgba(79,140,255,0.12), rgba(167,139,250,0.12));
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 2rem 3rem;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 500;
+    max-width: 800px;
+    line-height: 1.5;
+  }
+
+  /* ===== METRIC ===== */
+  .metric {
+    text-align: center;
+    padding: 1.2rem;
+  }
+  .metric .val {
+    font-size: 3rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+  .metric .lbl {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .yellow { color: var(--yellow); }
+  .blue { color: var(--accent); }
+
+  /* ===== TAGS ===== */
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 0.2rem;
+  }
+  .tag-b { background: rgba(79,140,255,0.15); color: var(--accent); }
+  .tag-g { background: rgba(52,211,153,0.15); color: var(--green); }
+  .tag-r { background: rgba(248,113,113,0.15); color: var(--red); }
+  .tag-y { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+  /* ===== TABLES ===== */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th { background: var(--surface2); padding: 0.6rem 0.8rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+  td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--surface2); }
+  .row-g { background: rgba(52,211,153,0.06); }
+  .row-r { background: rgba(248,113,113,0.06); }
+
+  /* ===== FIGURES ===== */
+  .fig { text-align: center; }
+  .fig img { max-width: 100%; max-height: 58vh; border-radius: 8px; border: 1px solid var(--surface2); background: #fff; padding: 4px; }
+  .fig figcaption { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; font-style: italic; }
+
+  /* ===== LISTS ===== */
+  ul, ol { padding-left: 1.4rem; margin: 0.5rem 0; }
+  li { margin-bottom: 0.4rem; font-size: 1rem; line-height: 1.5; }
+
+  /* ===== PIPELINE ===== */
+  .pipe { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
+  .pipe-box {
+    background: var(--surface);
+    border: 1px solid var(--surface3);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
+    text-align: center;
+    min-width: 130px;
+    font-size: 0.9rem;
+  }
+  .pipe-box strong { display: block; font-size: 1rem; }
+  .pipe-box small { color: var(--text-dim); font-size: 0.75rem; }
+  .pipe-arr { font-size: 1.4rem; color: var(--accent); }
+
+  /* ===== TITLE SLIDE ===== */
+  .slide-hero {
+    background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 50%, #0a1628 100%);
+  }
+  .slide-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(79,140,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(167,139,250,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .subtitle { font-size: 1.3rem; font-weight: 300; color: var(--text-dim); margin-bottom: 2.5rem; line-height: 1.5; }
+  .author-info { font-size: 0.95rem; color: var(--text-dim); }
+  .author-info span { opacity: 0.6; }
+
+  /* ===== SECTION BREAK ===== */
+  .slide-section {
+    background: var(--surface);
+  }
+  .slide-section h2 { font-size: 3rem; margin-bottom: 0.5rem; }
+  .slide-section p { color: var(--text-dim); font-size: 1.2rem; }
+
+  /* ===== CHECKMARKS ===== */
+  .check { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter"></div>
+<div class="hint">Arrow keys / click to navigate</div>
+
+<div class="deck" id="deck">
+
+<!-- ==================== SLIDE 1: TITLE ==================== -->
+<div class="slide slide-hero" data-steps="3">
+  <div class="center">
+    <h1 class="frag" data-step="0">Can LLM Judgment Capture<br>Human Preference?</h1>
+    <p class="subtitle frag" data-step="1">An Alignment Study Between Automated and Human<br>Evaluation of LLM Task Performance</p>
+    <div class="frag" data-step="2">
+      <p class="author-info">Yifan Liu &middot; 1007341681<br><span>Mechanical and Industrial Engineering &middot; University of Toronto<br>MIE1512 &middot; Prof. Mariano P. Consens</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: PROBLEM ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">The Research Problem</h2>
+  <p class="frag" data-step="1">Evaluating LLMs is expensive. <strong>Human evaluation</strong> (crowdsourced voting) is the gold standard &mdash; but slow, costly, and hard to scale. A popular alternative: use a <strong>strong LLM as a judge</strong> to score other LLMs automatically.</p>
+  <div class="rq frag-pop" data-step="2" style="margin:1.5rem auto;">
+    Can an LLM judge reliably capture human preferences<br>when evaluating LLM task performance?
+  </div>
+  <p class="frag" data-step="3">Existing work reports high overall agreement (r &ge; 0.94). <strong>But is this agreement uniform across task types?</strong> Or does the LLM judge agree with humans on some tasks and fail on others?</p>
+</div>
+
+<!-- ==================== SLIDE 3: MOTIVATION ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Why This Matters</h2>
+  <div class="cols cols-3">
+    <div class="card card-glow-blue frag-left" data-step="1">
+      <h3>Replacing Human Evaluation</h3>
+      <p>If LLM judges fail on certain task types, using them as a blanket replacement for human evaluation is unreliable.</p>
+    </div>
+    <div class="card card-glow-purple frag" data-step="2">
+      <h3>Model Development</h3>
+      <p>RLHF and DPO use automated scores as training signals. If the judge disagrees with humans on math or translation, models are optimized for the wrong objective.</p>
+    </div>
+    <div class="card card-glow-yellow frag-right" data-step="3">
+      <h3>Model Selection</h3>
+      <p>Practitioners choose LLMs based on leaderboards. If the leaderboard doesn't match human preferences for their use case, they may pick the wrong model.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: SECTION - BACKGROUND ==================== -->
+<div class="slide slide-section center" data-steps="2">
+  <h2 class="frag-pop" data-step="0">Background</h2>
+  <p class="frag" data-step="1">Two evaluation paradigms we compare</p>
+</div>
+
+<!-- ==================== SLIDE 5: TWO PARADIGMS ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Two Evaluation Paradigms</h2>
+  <div class="cols cols-2">
+    <div class="card card-glow-yellow frag-left" data-step="1">
+      <h3 style="color:var(--yellow);">Human Evaluation: Chatbot Arena</h3>
+      <p style="font-size:0.8rem; color:var(--text-dim);">Chiang et al., ICML 2024</p>
+      <ul>
+        <li>Users submit prompts, vote between two anonymous LLM responses</li>
+        <li><strong>57,477 pairwise battles</strong>, 64 models</li>
+        <li>Rankings via Bradley-Terry Elo</li>
+        <li>Gold standard &mdash; but expensive</li>
+      </ul>
+      <p><em>Our ground truth for human preferences.</em></p>
+    </div>
+    <div class="card card-glow-green frag-right" data-step="2">
+      <h3 style="color:var(--green);">LLM-as-Judge: WildBench</h3>
+      <p style="font-size:0.8rem; color:var(--text-dim);">Lin et al., ICLR 2025 (Spotlight)</p>
+      <ul>
+        <li>GPT-4-turbo judges outputs using <strong>task-specific checklists</strong></li>
+        <li><strong>WB-Score</strong>: pointwise 1&ndash;10</li>
+        <li><strong>WB-Reward</strong>: pairwise (5 levels) + length-bias correction</li>
+        <li>1,024 real-user tasks, 60+ models</li>
+      </ul>
+      <p><em>The automated judgment we test.</em></p>
+    </div>
+  </div>
+  <div class="card frag-pop" data-step="3" style="text-align:center; margin-top:1rem;">
+    Both report <strong>r = 0.98</strong> overall. Our question: <strong>does this hold per task category?</strong>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: TASK CATEGORIES ==================== -->
+<div class="slide" data-steps="3">
+  <h2 class="frag" data-step="0">WildBench's Task Categorization</h2>
+  <div class="cols cols-60-40">
+    <div class="frag-left" data-step="1">
+      <p>WildBench classifies evaluation tasks into <strong>12 categories</strong> from real user needs:</p>
+      <div style="margin:0.8rem 0; line-height:2.2;">
+        <span class="tag tag-b">Coding & Debugging</span>
+        <span class="tag tag-b">Creative Writing</span>
+        <span class="tag tag-b">Mathematics</span>
+        <span class="tag tag-b">Information Seeking</span>
+        <span class="tag tag-b">Data Analysis</span>
+        <span class="tag tag-b">Planning</span>
+        <span class="tag tag-b">Editing</span>
+        <span class="tag tag-b">Role-Playing</span>
+        <span class="tag tag-b">Reasoning</span>
+        <span class="tag tag-b">Advice Seeking</span>
+        <span class="tag tag-b">Brainstorming</span>
+        <span class="tag tag-b">Others</span>
+      </div>
+      <p>We apply this categorization to Arena's human preference data.</p>
+    </div>
+    <div class="fig frag-right" data-step="2">
+      <img src="figures/wb_categories.png" alt="WildBench categories">
+      <figcaption>1,024 tasks across 12 categories</figcaption>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: SECTION - METHOD ==================== -->
+<div class="slide slide-section center" data-steps="2">
+  <h2 class="frag-pop" data-step="0">Method</h2>
+  <p class="frag" data-step="1">How we compare LLM judgment with human preference</p>
+</div>
+
+<!-- ==================== SLIDE 8: PIPELINE ==================== -->
+<div class="slide" data-steps="6">
+  <h2 class="frag" data-step="0">Our Approach</h2>
+  <div class="pipe" style="margin:1.5rem 0;">
+    <div class="pipe-box card-glow-yellow frag-left" data-step="1"><strong>Arena 57.5K</strong><small>human votes</small></div>
+    <span class="pipe-arr frag-fade" data-step="1">&rarr;</span>
+    <div class="pipe-box card-glow-blue frag" data-step="2"><strong>Categorize</strong><small>keyword heuristics</small></div>
+    <span class="pipe-arr frag-fade" data-step="2">&rarr;</span>
+    <div class="pipe-box card-glow-blue frag" data-step="3"><strong>Per-Category</strong><small>human win rates + Elo</small></div>
+    <span class="pipe-arr frag-fade" data-step="3">&rarr;</span>
+    <div class="pipe-box card-glow-green frag-right" data-step="4"><strong>Compare</strong><small>with LLM judge scores</small></div>
+  </div>
+  <div class="frag" data-step="5" style="margin-top:1rem;">
+    <ol>
+      <li><strong>Categorize</strong> Arena's 57.5K battles into task types using keyword heuristics</li>
+      <li><strong>Compute</strong> per-model human win rates within each category + Elo via Bradley-Terry</li>
+      <li><strong>Compare</strong> with WildBench's LLM judge scores for 12 overlapping models</li>
+    </ol>
+    <p style="color:var(--text-dim); font-size:0.85rem; margin-top:0.8rem;"><strong>Scale:</strong> ~1.8M records, PySpark. <strong>No LLM inference</strong> &mdash; all judgments precomputed.</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: SECTION - RESULTS ==================== -->
+<div class="slide slide-section center" data-steps="2">
+  <h2 class="frag-pop" data-step="0">Results</h2>
+  <p class="frag" data-step="1">What we found when comparing LLM judgment with human preference</p>
+</div>
+
+<!-- ==================== SLIDE 10: OVERALL CORRELATION ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Result 1: Overall &mdash; The LLM Judge Agrees</h2>
+  <div class="cols cols-2">
+    <div>
+      <div class="cols cols-2" style="margin-bottom:1rem;">
+        <div class="card card-glow-green metric frag-pop" data-step="1">
+          <div class="val green">0.954</div>
+          <div class="lbl">Pearson r &middot; Elo vs WB-Score</div>
+        </div>
+        <div class="card card-glow-green metric frag-pop" data-step="1">
+          <div class="val green">0.943</div>
+          <div class="lbl">Pearson r &middot; Elo vs WB-Reward</div>
+        </div>
+      </div>
+      <div class="frag" data-step="2">
+        <table>
+          <thead><tr><th>Comparison</th><th>Pearson</th><th>Spearman</th></tr></thead>
+          <tbody>
+            <tr><td>Elo vs WB-Score</td><td><strong>0.954</strong></td><td>0.923</td></tr>
+            <tr><td>Elo vs WB-Reward</td><td><strong>0.943</strong></td><td>0.895</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="frag" data-step="3"><em>High overall agreement (p &lt; 10<sup>-5</sup>). But this is partly driven by large inter-model gaps &mdash; every benchmark can tell GPT-4 from Llama-2. The real test is per category&hellip;</em></p>
+    </div>
+    <div class="fig frag-right" data-step="2">
+      <img src="figures/cross_benchmark.png" alt="Scatter plots">
+      <figcaption>Arena Elo vs WildBench scores (12 models)</figcaption>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: PER-CATEGORY ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Result 2: Per Category &mdash; Agreement Varies Dramatically</h2>
+  <div class="cols cols-2">
+    <div class="frag-left" data-step="1">
+      <table>
+        <thead><tr><th>Task Category</th><th>N</th><th>vs WB-Score</th><th>vs WB-Reward</th></tr></thead>
+        <tbody>
+          <tr class="row-g"><td><span class="tag tag-g">Reasoning</span></td><td>11</td><td><strong>0.749</strong></td><td>0.693</td></tr>
+          <tr class="row-g"><td><span class="tag tag-g">Creative Writing</span></td><td>11</td><td>0.713</td><td>0.649</td></tr>
+          <tr><td><span class="tag tag-b">Coding & Debugging</span></td><td>12</td><td>0.689</td><td>0.661</td></tr>
+          <tr><td><span class="tag tag-b">Role-Playing</span></td><td>11</td><td>0.689</td><td>0.642</td></tr>
+          <tr class="row-r"><td><span class="tag tag-y">Info Seeking</span></td><td>12</td><td>0.595</td><td>0.554</td></tr>
+          <tr class="row-r"><td><span class="tag tag-y">Mathematics</span></td><td>11</td><td>0.558</td><td>0.581</td></tr>
+          <tr class="row-r"><td><span class="tag tag-r">Translation</span></td><td>5</td><td><strong>0.146</strong></td><td>0.144</td></tr>
+          <tr style="border-top:2px solid var(--surface3);"><td><em>Overall</em></td><td>12</td><td><em>0.954</em></td><td><em>0.943</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="fig frag-right" data-step="2">
+        <img src="figures/per_category_corr.png" alt="Bar chart">
+        <figcaption>Correlation by task category</figcaption>
+      </div>
+      <div class="card card-glow-red frag-pop" data-step="3">
+        The <strong>0.95 overall masks a range from 0.75 to 0.15</strong>. The LLM judge is a good proxy for reasoning but <strong>nearly uncorrelated</strong> with humans on translation.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: HEATMAP ==================== -->
+<div class="slide" data-steps="3">
+  <h2 class="frag" data-step="0">Result 3: Rankings Shift Across Categories</h2>
+  <div class="fig frag-pop" data-step="1">
+    <img src="figures/arena_heatmap.png" alt="Heatmap" style="max-height:52vh;">
+    <figcaption>Per-category human preference win rates (Arena 55K, top 15 models)</figcaption>
+  </div>
+  <p class="frag" data-step="2" style="text-align:center; margin-top:0.5rem;">The overall #1 model (gpt-4-1106-preview) is <strong>not #1 in most categories</strong>. Performance varies substantially by task type.</p>
+</div>
+
+<!-- ==================== SLIDE 13: CATEGORY LEADERS ==================== -->
+<div class="slide" data-steps="3">
+  <h2 class="frag" data-step="0">Category-Specific Leaders</h2>
+  <div class="frag" data-step="1">
+    <table>
+      <thead><tr><th>Task Category</th><th>Top Model (human votes)</th><th>Win Rate</th></tr></thead>
+      <tbody>
+        <tr><td>Coding & Debugging</td><td>gpt-3.5-turbo-0314</td><td>61.2%</td></tr>
+        <tr><td>Creative Writing</td><td>gpt-3.5-turbo-0314</td><td>61.7%</td></tr>
+        <tr><td>Information Seeking</td><td>gpt-3.5-turbo-0314</td><td>60.0%</td></tr>
+        <tr><td>Reasoning</td><td><strong>gpt-4-1106-preview</strong></td><td>60.2%</td></tr>
+        <tr><td>Mathematics</td><td>gpt-3.5-turbo-0314</td><td>75.0%</td></tr>
+        <tr><td>Role-Playing</td><td>mpt-30b-chat</td><td>70.0%</td></tr>
+        <tr><td>Translation</td><td>gpt-4-0613</td><td>58.3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card card-glow-blue frag-pop" data-step="2" style="margin-top:1rem;">
+    <strong>Key insight:</strong> The aggregate Elo champion (gpt-4-1106-preview, Elo 1235) only leads in <strong>Reasoning</strong>. A single leaderboard number does not tell the full story.
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: SUMMARY ==================== -->
+<div class="slide" data-steps="5">
+  <h2 class="frag" data-step="0">Summary</h2>
+  <div class="rq frag-pop" data-step="1" style="margin:1rem auto 1.5rem;">
+    Can an LLM judge capture human preferences? &nbsp;<strong style="font-size:1.5rem;">It depends on the task.</strong>
+  </div>
+  <div class="cols cols-3">
+    <div class="card card-glow-green frag-left" data-step="2">
+      <h3 style="color:var(--green);">1. Overall: Yes</h3>
+      <p>LLM judge scores correlate strongly with human Elo (r = 0.95), driven by large inter-model gaps.</p>
+    </div>
+    <div class="card card-glow-yellow frag" data-step="3">
+      <h3 style="color:var(--yellow);">2. Per Category: It Varies</h3>
+      <p>Agreement ranges from r = 0.75 (reasoning) to r = 0.15 (translation). The LLM judge is reliable for some tasks but not others.</p>
+    </div>
+    <div class="card card-glow-red frag-right" data-step="4">
+      <h3 style="color:var(--red);">3. Rankings Shift</h3>
+      <p>The best overall model is not the best in most categories. Aggregate scores hide task-specific strengths.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: ONGOING ==================== -->
+<div class="slide" data-steps="3">
+  <h2 class="frag" data-step="0">Ongoing Work</h2>
+  <div class="cols cols-2">
+    <div class="card card-glow-green frag-left" data-step="1">
+      <h3 style="color:var(--green);"><span class="check">&check;</span> Completed</h3>
+      <ul>
+        <li>Arena 57.5K: task categorization, per-category win rates</li>
+        <li>Elo ratings via Bradley-Terry model</li>
+        <li>Cross-benchmark correlation &mdash; overall and per category</li>
+        <li>7 visualizations (heatmaps, scatter plots, bar charts)</li>
+      </ul>
+    </div>
+    <div class="card card-glow-blue frag-right" data-step="2">
+      <h3>In Progress</h3>
+      <ol>
+        <li>Per-category Elo (fairer than raw win rate)</li>
+        <li>1.7M Arena voting records for robust estimates</li>
+        <li>AlpacaEval 2 integration for three-way comparison</li>
+        <li>Bootstrap confidence intervals</li>
+        <li>Improved categorization coverage (40% &rarr; target 70%+)</li>
+        <li>Full PySpark pipeline at scale</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 16: THANK YOU ==================== -->
+<div class="slide slide-hero center" data-steps="2">
+  <h1 class="frag-pop" data-step="0">Thank You</h1>
+  <p class="subtitle frag" data-step="1">Questions?</p>
+  <div class="frag-fade" data-step="1" style="margin-top:1.5rem; font-size:0.8rem; color:var(--text-dim); line-height:2;">
+    Lin et al., "WildBench," ICLR 2025 (Spotlight)<br>
+    Chiang et al., "Chatbot Arena," ICML 2024<br>
+    Dubois et al., "AlpacaEval 2," COLM 2024
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  let cur = 0;       // current slide index
+  let step = -1;     // current fragment step (-1 = none shown yet)
+
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+
+  function getSteps(i) {
+    return parseInt(slides[i].dataset.steps || '0');
+  }
+
+  function showFrags(slideEl, upToStep) {
+    slideEl.querySelectorAll('[data-step]').forEach(el => {
+      const s = parseInt(el.dataset.step);
+      if (s <= upToStep) {
+        el.classList.add('show');
+      } else {
+        el.classList.remove('show');
+      }
+    });
+  }
+
+  function goTo(index, direction) {
+    if (index < 0 || index >= total) return;
+
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'exit-left');
+      if (i === index) {
+        s.classList.add('active');
+      } else if (i < index) {
+        s.classList.add('exit-left');
+      }
+    });
+
+    cur = index;
+    step = -1;
+    // Reset all fragments
+    showFrags(slides[cur], -1);
+
+    updateUI();
+  }
+
+  function next() {
+    const maxStep = getSteps(cur) - 1;
+    if (step < maxStep) {
+      step++;
+      showFrags(slides[cur], step);
+      updateUI();
+    } else if (cur < total - 1) {
+      goTo(cur + 1, 'right');
+      // Auto-advance to first fragment
+      if (getSteps(cur) > 0) {
+        step = 0;
+        showFrags(slides[cur], 0);
+        updateUI();
+      }
+    }
+  }
+
+  function prev() {
+    if (step > 0) {
+      step--;
+      showFrags(slides[cur], step);
+      updateUI();
+    } else if (step === 0) {
+      step = -1;
+      showFrags(slides[cur], -1);
+      updateUI();
+    } else if (cur > 0) {
+      goTo(cur - 1, 'left');
+      // Show all fragments of previous slide
+      const maxStep = getSteps(cur) - 1;
+      step = maxStep;
+      showFrags(slides[cur], step);
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    const totalSteps = slides.reduce((sum, s) => sum + Math.max(1, parseInt(s.dataset.steps || '1')), 0);
+    let currentStep = 0;
+    for (let i = 0; i < cur; i++) {
+      currentStep += Math.max(1, parseInt(slides[i].dataset.steps || '1'));
+    }
+    currentStep += Math.max(0, step + 1);
+
+    progress.style.width = (currentStep / totalSteps * 100) + '%';
+    counter.textContent = (cur + 1) + ' / ' + total;
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prev(); }
+    else if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); step = 0; showFrags(slides[0], 0); updateUI(); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); const ms = getSteps(cur) - 1; step = ms; showFrags(slides[cur], ms); updateUI(); }
+  });
+
+  // Click (left half = prev, right half = next)
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button')) return;
+    if (e.clientX < window.innerWidth * 0.3) prev();
+    else next();
+  });
+
+  // Touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+  });
+
+  // Init
+  goTo(0);
+  step = 0;
+  showFrags(slides[0], 0);
+  updateUI();
+})();
+</script>
+
+</body>
+</html>
