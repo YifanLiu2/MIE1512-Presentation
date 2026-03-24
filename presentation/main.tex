@@ -95,76 +95,88 @@ Existing work reports high overall agreement ($r \geq 0.94$) between automated L
 
 \begin{frame}{LLM-as-Judge: How It Works}
 
-The \textbf{LLM-as-judge} paradigm uses a strong LLM (e.g., GPT-4-turbo) to automatically evaluate outputs from other models, replacing expensive human annotation.
-
-\vspace{0.5em}
-\textbf{WildBench} (Lin et al., ICLR 2025 Spotlight) is a leading implementation:
+The \textbf{LLM-as-judge} paradigm uses a strong LLM (GPT-4-turbo) to automatically evaluate other models' outputs. \textbf{WildBench} (Lin et al., ICLR 2025 Spotlight) is a leading implementation:
 
 \vspace{0.3em}
-\begin{columns}[T]
-\begin{column}{0.55\textwidth}
 \begin{enumerate}\small
-    \item \textbf{Input}: A real-user prompt + model response
-    \item \textbf{Checklist generation}: GPT-4-turbo generates a \textbf{task-specific checklist} (e.g., code correctness, efficiency, explanation quality for coding tasks)
-    \item \textbf{Pointwise scoring (WB-Score)}: Rate the response 1--10 against the checklist
-    \item \textbf{Pairwise scoring (WB-Reward)}: Compare response against 3 reference models with 5 outcome levels, corrected for length bias
+    \item \textbf{Input}: A real-user prompt (from WildChat) + the target model's response
+    \item \textbf{Checklist generation}: GPT-4-Turbo and Claude-3-Opus jointly generate a \textbf{task-specific checklist} of 5--10 verifiable questions tailored to the prompt (e.g., ``Does the code handle edge cases?'' for a coding task)
+    \item \textbf{Evaluation}: The LLM judge evaluates the response against the checklist using Chain-of-Thought reasoning, producing a structured analysis of strengths and weaknesses before arriving at a final judgment
 \end{enumerate}
-\end{column}
-\begin{column}{0.42\textwidth}
-\includegraphics[width=\textwidth]{figures/wb_categories.png}
+
+\vspace{0.3em}
+\begin{block}{Why Checklists?}
+Without checklists, WB-Score achieves $r = 0.905$ with human Elo. \textbf{With checklists, it rises to $r = 0.925$} (ablation study, Section 4.3). Checklists reduce subjectivity by grounding evaluation in concrete, task-specific criteria.
+\end{block}
 
 \vspace{0.2em}
-{\scriptsize 1,024 tasks across 12 categories, 60+ models evaluated. Reports $r = 0.98$ with human Elo.}
+{\small 1,024 tasks sourced from WildChat $\cdot$ 12 task categories $\cdot$ 60+ models evaluated}
+\end{frame}
+
+% ============================
+\begin{frame}{Two Metrics: WB-Score and WB-Reward}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{WB-Score (Pointwise)}
+\begin{itemize}\small
+    \item Judge rates \textbf{one response} on a 1--10 scale against the checklist
+    \item Score rubric:
+    \begin{itemize}\scriptsize
+        \item 1--2: Makes no sense
+        \item 3--4: Poor, doesn't help user
+        \item 5--6: Fair but has issues (errors, hallucinations)
+        \item 7--8: Good but could improve
+        \item 9--10: Perfect, fully solves the problem
+    \end{itemize}
+    \item Rescaled: $S' = (S - 5) \times 2$
+    \item Cheaper (\$5, 10 min per model)
+    \item Achieves $r = 0.955$ with Arena Elo (top models)
+\end{itemize}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{WB-Reward (Pairwise)}
+\begin{itemize}\small
+    \item Judge \textbf{compares} test model vs.\ a baseline model using the checklist
+    \item 5 outcome levels, scored as:
+    \begin{itemize}\scriptsize
+        \item Much better: $+1$
+        \item Slightly better: $+0.5$
+        \item Tie: $0$
+        \item Slightly worse: $-0.5$
+        \item Much worse: $-1$
+    \end{itemize}
+    \item \textbf{3 baselines}: GPT-4-Turbo, Claude-3-Haiku, Llama-2-70B-chat (averaged)
+    \item \textbf{Length penalty}: if winner is $>K$ chars longer, slight win $\to$ tie ($K=500$)
+    \item Achieves $r = 0.984$ with Arena Elo (top models)
+\end{itemize}
+\end{block}
 \end{column}
 \end{columns}
 \end{frame}
 
 % ============================
-\begin{frame}{Task-Specific Checklists: The Key Idea}
+\begin{frame}{Task-Specific Checklists: Example}
 
-What makes WildBench different from naive LLM-as-judge is the \textbf{task-specific checklist}:
-
-\vspace{0.5em}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\begin{block}{Coding \& Debugging}
-\begin{itemize}\small
-    \item Does the code compile/run?
-    \item Is the logic correct?
-    \item Are edge cases handled?
-    \item Is the code efficient?
-\end{itemize}
+\begin{block}{Example prompt (G20 essay task from WildBench)}
+{\small\itshape ``Write an essay on the impact of the G20 summit on the global economy\ldots\ it has to have more than 1200 words. Write it beautiful and poetic. Use extensive vocabulary\ldots\ Use some ancient Indian historical references.''}
 \end{block}
 
-\begin{block}{Creative Writing}
-\begin{itemize}\small
-    \item Is the narrative engaging?
-    \item Is the tone appropriate?
-    \item Is the language fluent and vivid?
-\end{itemize}
-\end{block}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{block}{Mathematics}
-\begin{itemize}\small
-    \item Is the final answer correct?
-    \item Are intermediate steps valid?
-    \item Is the reasoning complete?
-\end{itemize}
-\end{block}
+\vspace{0.3em}
+\textbf{Generated checklist} (5--10 questions per task):
+\begin{enumerate}\small
+    \item Does the essay contain more than 1200 words as requested?
+    \item Is the language beautiful and poetic, with extensive vocabulary?
+    \item Does it include factual data on the G20's economic impact?
+    \item Are there references to young people shaping the world?
+    \item Does it include ancient Indian historical references?
+    \item Is the essay structured in a clear and logical manner?
+\end{enumerate}
 
-\begin{block}{Translation}
-\begin{itemize}\small
-    \item Is the meaning preserved?
-    \item Is the grammar correct?
-    \item Are cultural nuances handled?
-\end{itemize}
-\end{block}
-\end{column}
-\end{columns}
-
-\vspace{0.5em}
-This categorization into \textbf{12 task types} is central to our analysis --- we apply it to human preference data to test per-category agreement.
+\vspace{0.3em}
+{\small The judge then evaluates each model's response against \textbf{these same questions}, ensuring consistent, interpretable, and comparable scoring across all models. Checklists are generated once per task and reused for every model.}
 \end{frame}
 
 % ============================

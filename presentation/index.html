@@ -356,66 +356,77 @@
 </div>
 
 <!-- ==================== SLIDE 5: LLM-AS-JUDGE ==================== -->
-<div class="slide" data-steps="5">
+<div class="slide" data-steps="4">
   <h2 class="frag" data-step="0">LLM-as-Judge: How It Works</h2>
-  <p class="frag" data-step="1">The LLM-as-judge paradigm uses a strong LLM (GPT-4-turbo) to automatically evaluate outputs from other models, replacing expensive human annotation. <strong>WildBench</strong> (Lin et al., ICLR 2025 Spotlight) is a leading implementation:</p>
-  <div class="cols cols-60-40" style="margin-top:1rem;">
-    <div class="frag-left" data-step="2">
-      <ol>
-        <li><strong>Input</strong>: A real-user prompt + model response</li>
-        <li><strong>Checklist generation</strong>: GPT-4-turbo generates a task-specific checklist (e.g., code correctness, efficiency for coding tasks)</li>
-        <li><strong>WB-Score</strong> (pointwise): Rate the response 1&ndash;10 against the checklist</li>
-        <li><strong>WB-Reward</strong> (pairwise): Compare against 3 reference models, 5 outcome levels, corrected for length bias</li>
-      </ol>
-      <p class="frag" data-step="3" style="color:var(--text-dim); font-size:0.85rem; margin-top:0.5rem;">1,024 tasks &middot; 60+ models &middot; Reports r = 0.98 with human Elo</p>
-    </div>
-    <div class="fig frag-right" data-step="4">
-      <img src="figures/wb_categories.png" alt="WildBench categories">
-      <figcaption>1,024 tasks across 12 categories</figcaption>
-    </div>
+  <p class="frag" data-step="1"><strong>WildBench</strong> (Lin et al., ICLR 2025 Spotlight) uses GPT-4-turbo to evaluate other models' outputs on 1,024 real-user tasks from WildChat:</p>
+  <div class="frag" data-step="2" style="margin-top:1rem;">
+    <ol>
+      <li><strong>Input</strong>: A real-user prompt (from WildChat) + the target model's response</li>
+      <li><strong>Checklist generation</strong>: GPT-4-Turbo and Claude-3-Opus jointly generate a <strong>task-specific checklist</strong> of 5&ndash;10 verifiable questions tailored to the prompt (e.g., "Does the code handle edge cases?")</li>
+      <li><strong>Evaluation</strong>: The judge evaluates the response against the checklist using <strong>Chain-of-Thought reasoning</strong>, producing a structured analysis of strengths and weaknesses before arriving at a final judgment</li>
+    </ol>
+  </div>
+  <div class="card card-glow-green frag-pop" data-step="3" style="margin-top:1rem; text-align:center;">
+    <strong>Why checklists?</strong> Without checklists, WB-Score achieves r = 0.905 with human Elo. <strong>With checklists, it rises to r = 0.925</strong> (ablation study). Checklists reduce subjectivity by grounding evaluation in concrete, task-specific criteria.
   </div>
 </div>
 
-<!-- ==================== SLIDE 6: CHECKLISTS ==================== -->
-<div class="slide" data-steps="5">
-  <h2 class="frag" data-step="0">Task-Specific Checklists: The Key Idea</h2>
-  <p class="frag" data-step="1">What distinguishes WildBench from naive LLM-as-judge is that the evaluation criteria <strong>adapt to each task type</strong>:</p>
-  <div class="cols cols-2" style="margin-top:1rem;">
-    <div class="card card-glow-blue frag-left" data-step="2">
-      <h3>Coding & Debugging</h3>
-      <ul>
-        <li>Does the code compile and run?</li>
-        <li>Is the logic correct?</li>
-        <li>Are edge cases handled?</li>
-        <li>Is the code efficient?</li>
+<!-- ==================== SLIDE 6: TWO METRICS ==================== -->
+<div class="slide" data-steps="3">
+  <h2 class="frag" data-step="0">Two Metrics: WB-Score and WB-Reward</h2>
+  <div class="cols cols-2" style="margin-top:0.5rem;">
+    <div class="card card-glow-blue frag-left" data-step="1">
+      <h3>WB-Score (Pointwise)</h3>
+      <p>Judge rates <strong>one response</strong> on a 1&ndash;10 scale against the checklist:</p>
+      <ul style="font-size:0.85rem;">
+        <li><span class="red">1&ndash;2</span>: Makes no sense at all</li>
+        <li><span class="red">3&ndash;4</span>: Poor, doesn't help user</li>
+        <li><span class="yellow">5&ndash;6</span>: Fair but has issues (errors, hallucinations)</li>
+        <li><span class="green">7&ndash;8</span>: Good but could improve</li>
+        <li><span class="green">9&ndash;10</span>: Perfect, fully solves the problem</li>
       </ul>
+      <p style="font-size:0.8rem; color:var(--text-dim);">Rescaled: S' = (S &minus; 5) &times; 2 &middot; Cost: ~$5, 10 min/model</p>
+      <p style="font-size:0.85rem;">Achieves <strong>r = 0.955</strong> with Arena Elo (top models)</p>
     </div>
-    <div class="card card-glow-purple frag-right" data-step="2">
-      <h3 style="color:var(--accent2);">Creative Writing</h3>
-      <ul>
-        <li>Is the narrative engaging?</li>
-        <li>Is the tone appropriate?</li>
-        <li>Is the language fluent and vivid?</li>
+    <div class="card card-glow-purple frag-right" data-step="1">
+      <h3 style="color:var(--accent2);">WB-Reward (Pairwise)</h3>
+      <p>Judge <strong>compares</strong> test model vs. a baseline using the checklist:</p>
+      <ul style="font-size:0.85rem;">
+        <li>Much better: <span class="green">+1</span></li>
+        <li>Slightly better: <span class="green">+0.5</span></li>
+        <li>Tie: 0</li>
+        <li>Slightly worse: <span class="red">&minus;0.5</span></li>
+        <li>Much worse: <span class="red">&minus;1</span></li>
       </ul>
-    </div>
-    <div class="card card-glow-yellow frag-left" data-step="3">
-      <h3 style="color:var(--yellow);">Mathematics</h3>
-      <ul>
-        <li>Is the final answer correct?</li>
-        <li>Are intermediate steps valid?</li>
-        <li>Is the reasoning complete?</li>
-      </ul>
-    </div>
-    <div class="card card-glow-red frag-right" data-step="3">
-      <h3 style="color:var(--red);">Translation</h3>
-      <ul>
-        <li>Is the meaning preserved?</li>
-        <li>Is the grammar correct in target language?</li>
-        <li>Are cultural nuances handled?</li>
-      </ul>
+      <p style="font-size:0.8rem; color:var(--text-dim);"><strong>3 baselines</strong> averaged: GPT-4-Turbo, Claude-3-Haiku, Llama-2-70B-chat</p>
+      <p style="font-size:0.8rem; color:var(--text-dim);"><strong>Length penalty</strong>: if winner &gt;K chars longer, slight win &rarr; tie (K=500)</p>
+      <p style="font-size:0.85rem;">Achieves <strong>r = 0.984</strong> with Arena Elo (top models)</p>
     </div>
   </div>
-  <p class="frag" data-step="4" style="text-align:center; margin-top:0.8rem;">This categorization into <strong>12 task types</strong> is central to our analysis &mdash; we apply it to human preference data to test per-category agreement.</p>
+  <div class="card frag-pop" data-step="2" style="text-align:center; margin-top:0.8rem;">
+    Both metrics use the <strong>same checklist</strong> per task. WB-Score is cheaper and faster; WB-Reward is more robust via multi-baseline comparison.
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6b: CHECKLIST EXAMPLE ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Checklist Example</h2>
+  <div class="card card-glow-yellow frag" data-step="1" style="margin-bottom:1rem;">
+    <h3 style="color:var(--yellow);">Example Prompt (G20 Essay Task)</h3>
+    <p style="font-style:italic; font-size:0.9rem;">"Write an essay on the impact of the G20 summit on the global economy... it has to have more than 1200 words. Write it beautiful and poetic. Use extensive vocabulary... Use some ancient Indian historical references."</p>
+  </div>
+  <div class="frag" data-step="2">
+    <h3>Generated Checklist (5&ndash;10 questions per task):</h3>
+    <ol style="font-size:0.95rem;">
+      <li>Does the essay contain more than 1200 words as requested?</li>
+      <li>Is the language beautiful and poetic, with extensive vocabulary?</li>
+      <li>Does it include factual data on the G20's economic impact?</li>
+      <li>Are there references to young people shaping the world?</li>
+      <li>Does it include ancient Indian historical references?</li>
+      <li>Is the essay structured in a clear and logical manner?</li>
+    </ol>
+  </div>
+  <p class="frag" data-step="3" style="color:var(--text-dim); font-size:0.85rem; margin-top:0.8rem;">The judge evaluates <strong>every model's response</strong> against these same questions, ensuring consistent, interpretable, and comparable scoring. Checklists are generated once per task and reused for all models.</p>
 </div>
 
 <!-- ==================== SLIDE 7: SECTION - DATASET ==================== -->
