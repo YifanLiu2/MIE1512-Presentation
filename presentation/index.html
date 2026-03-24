@@ -349,98 +349,103 @@
   </div>
 </div>
 
-<!-- ==================== SLIDE 4: SECTION - BACKGROUND ==================== -->
+<!-- ==================== SLIDE 4: SECTION - METHOD ==================== -->
 <div class="slide slide-section center" data-steps="2">
-  <h2 class="frag-pop" data-step="0">Background</h2>
-  <p class="frag" data-step="1">Two evaluation paradigms we compare</p>
+  <h2 class="frag-pop" data-step="0">Method: LLM-as-Judge</h2>
+  <p class="frag" data-step="1">Using a strong LLM to automatically evaluate other models</p>
 </div>
 
-<!-- ==================== SLIDE 5: TWO PARADIGMS ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Two Evaluation Paradigms</h2>
-  <div class="cols cols-2">
-    <div class="card card-glow-yellow frag-left" data-step="1">
-      <h3 style="color:var(--yellow);">Human Evaluation: Chatbot Arena</h3>
-      <p style="font-size:0.8rem; color:var(--text-dim);">Chiang et al., ICML 2024</p>
-      <ul>
-        <li>Users submit prompts, vote between two anonymous LLM responses</li>
-        <li><strong>57,477 pairwise battles</strong>, 64 models</li>
-        <li>Rankings via Bradley-Terry Elo</li>
-        <li>Gold standard &mdash; but expensive</li>
-      </ul>
-      <p><em>Our ground truth for human preferences.</em></p>
+<!-- ==================== SLIDE 5: LLM-AS-JUDGE ==================== -->
+<div class="slide" data-steps="5">
+  <h2 class="frag" data-step="0">LLM-as-Judge: How It Works</h2>
+  <p class="frag" data-step="1">The LLM-as-judge paradigm uses a strong LLM (GPT-4-turbo) to automatically evaluate outputs from other models, replacing expensive human annotation. <strong>WildBench</strong> (Lin et al., ICLR 2025 Spotlight) is a leading implementation:</p>
+  <div class="cols cols-60-40" style="margin-top:1rem;">
+    <div class="frag-left" data-step="2">
+      <ol>
+        <li><strong>Input</strong>: A real-user prompt + model response</li>
+        <li><strong>Checklist generation</strong>: GPT-4-turbo generates a task-specific checklist (e.g., code correctness, efficiency for coding tasks)</li>
+        <li><strong>WB-Score</strong> (pointwise): Rate the response 1&ndash;10 against the checklist</li>
+        <li><strong>WB-Reward</strong> (pairwise): Compare against 3 reference models, 5 outcome levels, corrected for length bias</li>
+      </ol>
+      <p class="frag" data-step="3" style="color:var(--text-dim); font-size:0.85rem; margin-top:0.5rem;">1,024 tasks &middot; 60+ models &middot; Reports r = 0.98 with human Elo</p>
     </div>
-    <div class="card card-glow-green frag-right" data-step="2">
-      <h3 style="color:var(--green);">LLM-as-Judge: WildBench</h3>
-      <p style="font-size:0.8rem; color:var(--text-dim);">Lin et al., ICLR 2025 (Spotlight)</p>
-      <ul>
-        <li>GPT-4-turbo judges outputs using <strong>task-specific checklists</strong></li>
-        <li><strong>WB-Score</strong>: pointwise 1&ndash;10</li>
-        <li><strong>WB-Reward</strong>: pairwise (5 levels) + length-bias correction</li>
-        <li>1,024 real-user tasks, 60+ models</li>
-      </ul>
-      <p><em>The automated judgment we test.</em></p>
-    </div>
-  </div>
-  <div class="card frag-pop" data-step="3" style="text-align:center; margin-top:1rem;">
-    Both report <strong>r = 0.98</strong> overall. Our question: <strong>does this hold per task category?</strong>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 6: TASK CATEGORIES ==================== -->
-<div class="slide" data-steps="3">
-  <h2 class="frag" data-step="0">WildBench's Task Categorization</h2>
-  <div class="cols cols-60-40">
-    <div class="frag-left" data-step="1">
-      <p>WildBench classifies evaluation tasks into <strong>12 categories</strong> from real user needs:</p>
-      <div style="margin:0.8rem 0; line-height:2.2;">
-        <span class="tag tag-b">Coding & Debugging</span>
-        <span class="tag tag-b">Creative Writing</span>
-        <span class="tag tag-b">Mathematics</span>
-        <span class="tag tag-b">Information Seeking</span>
-        <span class="tag tag-b">Data Analysis</span>
-        <span class="tag tag-b">Planning</span>
-        <span class="tag tag-b">Editing</span>
-        <span class="tag tag-b">Role-Playing</span>
-        <span class="tag tag-b">Reasoning</span>
-        <span class="tag tag-b">Advice Seeking</span>
-        <span class="tag tag-b">Brainstorming</span>
-        <span class="tag tag-b">Others</span>
-      </div>
-      <p>We apply this categorization to Arena's human preference data.</p>
-    </div>
-    <div class="fig frag-right" data-step="2">
+    <div class="fig frag-right" data-step="4">
       <img src="figures/wb_categories.png" alt="WildBench categories">
       <figcaption>1,024 tasks across 12 categories</figcaption>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 7: SECTION - METHOD ==================== -->
-<div class="slide slide-section center" data-steps="2">
-  <h2 class="frag-pop" data-step="0">Method</h2>
-  <p class="frag" data-step="1">How we compare LLM judgment with human preference</p>
+<!-- ==================== SLIDE 6: CHECKLISTS ==================== -->
+<div class="slide" data-steps="5">
+  <h2 class="frag" data-step="0">Task-Specific Checklists: The Key Idea</h2>
+  <p class="frag" data-step="1">What distinguishes WildBench from naive LLM-as-judge is that the evaluation criteria <strong>adapt to each task type</strong>:</p>
+  <div class="cols cols-2" style="margin-top:1rem;">
+    <div class="card card-glow-blue frag-left" data-step="2">
+      <h3>Coding & Debugging</h3>
+      <ul>
+        <li>Does the code compile and run?</li>
+        <li>Is the logic correct?</li>
+        <li>Are edge cases handled?</li>
+        <li>Is the code efficient?</li>
+      </ul>
+    </div>
+    <div class="card card-glow-purple frag-right" data-step="2">
+      <h3 style="color:var(--accent2);">Creative Writing</h3>
+      <ul>
+        <li>Is the narrative engaging?</li>
+        <li>Is the tone appropriate?</li>
+        <li>Is the language fluent and vivid?</li>
+      </ul>
+    </div>
+    <div class="card card-glow-yellow frag-left" data-step="3">
+      <h3 style="color:var(--yellow);">Mathematics</h3>
+      <ul>
+        <li>Is the final answer correct?</li>
+        <li>Are intermediate steps valid?</li>
+        <li>Is the reasoning complete?</li>
+      </ul>
+    </div>
+    <div class="card card-glow-red frag-right" data-step="3">
+      <h3 style="color:var(--red);">Translation</h3>
+      <ul>
+        <li>Is the meaning preserved?</li>
+        <li>Is the grammar correct in target language?</li>
+        <li>Are cultural nuances handled?</li>
+      </ul>
+    </div>
+  </div>
+  <p class="frag" data-step="4" style="text-align:center; margin-top:0.8rem;">This categorization into <strong>12 task types</strong> is central to our analysis &mdash; we apply it to human preference data to test per-category agreement.</p>
 </div>
 
-<!-- ==================== SLIDE 8: PIPELINE ==================== -->
-<div class="slide" data-steps="6">
-  <h2 class="frag" data-step="0">Our Approach</h2>
-  <div class="pipe" style="margin:1.5rem 0;">
-    <div class="pipe-box card-glow-yellow frag-left" data-step="1"><strong>Arena 57.5K</strong><small>human votes</small></div>
-    <span class="pipe-arr frag-fade" data-step="1">&rarr;</span>
-    <div class="pipe-box card-glow-blue frag" data-step="2"><strong>Categorize</strong><small>keyword heuristics</small></div>
-    <span class="pipe-arr frag-fade" data-step="2">&rarr;</span>
-    <div class="pipe-box card-glow-blue frag" data-step="3"><strong>Per-Category</strong><small>human win rates + Elo</small></div>
-    <span class="pipe-arr frag-fade" data-step="3">&rarr;</span>
-    <div class="pipe-box card-glow-green frag-right" data-step="4"><strong>Compare</strong><small>with LLM judge scores</small></div>
+<!-- ==================== SLIDE 7: SECTION - DATASET ==================== -->
+<div class="slide slide-section center" data-steps="2">
+  <h2 class="frag-pop" data-step="0">Dataset: Chatbot Arena</h2>
+  <p class="frag" data-step="1">The largest open human preference dataset for LLM evaluation</p>
+</div>
+
+<!-- ==================== SLIDE 8: ARENA DATASET ==================== -->
+<div class="slide" data-steps="4">
+  <h2 class="frag" data-step="0">Chatbot Arena: Human Preference at Scale</h2>
+  <p style="font-size:0.8rem; color:var(--text-dim);" class="frag" data-step="0">Chiang et al., ICML 2024</p>
+  <div class="cols cols-60-40" style="margin-top:0.8rem;">
+    <div class="frag-left" data-step="1">
+      <ul>
+        <li>A user submits a prompt and sees responses from <strong>two anonymous LLMs</strong> side by side</li>
+        <li>The user votes for the response they prefer</li>
+        <li><strong>57,477 pairwise battles</strong> with full text, across 64 models</li>
+        <li>Supplemented by <strong>1.7M voting records</strong></li>
+        <li>Rankings via <strong>Bradley-Terry model</strong> &rarr; Elo ratings (same concept as chess)</li>
+      </ul>
+      <p class="frag" data-step="2" style="margin-top:0.8rem;">Widely considered the <strong>gold standard</strong> for alignment evaluation. This is our ground truth: <em>what do humans actually prefer?</em></p>
+    </div>
+    <div class="fig frag-right" data-step="1">
+      <img src="figures/arena_top20.png" alt="Arena Elo rankings">
+      <figcaption>Top 20 models by Elo (Bradley-Terry)</figcaption>
+    </div>
   </div>
-  <div class="frag" data-step="5" style="margin-top:1rem;">
-    <ol>
-      <li><strong>Categorize</strong> Arena's 57.5K battles into task types using keyword heuristics</li>
-      <li><strong>Compute</strong> per-model human win rates within each category + Elo via Bradley-Terry</li>
-      <li><strong>Compare</strong> with WildBench's LLM judge scores for 12 overlapping models</li>
-    </ol>
-    <p style="color:var(--text-dim); font-size:0.85rem; margin-top:0.8rem;"><strong>Scale:</strong> ~1.8M records, PySpark. <strong>No LLM inference</strong> &mdash; all judgments precomputed.</p>
+  <div class="card frag-pop" data-step="3" style="text-align:center; margin-top:0.8rem;">
+    Arena provides aggregate Elo but <strong>no task-category breakdown</strong>. We add one: classify each prompt via keyword heuristics into WildBench's 12 task types, then compute <strong>per-category human win rates</strong> for 12 overlapping models. All processed with PySpark (~1.8M records).
   </div>
 </div>
 
