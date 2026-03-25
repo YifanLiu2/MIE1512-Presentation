@@ -175,10 +175,11 @@
   <h2>Motivation: Evaluating LLM Output Quality</h2>
 
   <div class="example-box" style="margin-bottom:0.8rem;">
-    <div class="example-label dim">Example: User asks an LLM</div>
-    <p><span class="accent">User:</span> "Why do leaves change color in autumn?"</p>
-    <p style="margin-top:0.4rem;"><span class="accent2">LLM Response:</span> "As days shorten, trees stop producing chlorophyll, revealing yellow and orange pigments (carotenoids) that were masked. Red colors come from anthocyanins produced in response to bright light and cool temperatures."</p>
-    <p class="dim small" style="margin-top:0.3rem;">Is this response accurate? Complete? Easy to understand? How do we evaluate quality at scale?</p>
+    <div class="example-label dim">Example: User asks two LLMs the same question</div>
+    <p><span class="accent">User:</span> "Write a short bedtime story for my 5-year-old about a brave bunny."</p>
+    <p style="margin-top:0.4rem;"><span class="accent2">Model A:</span> "Once upon a time, a little bunny named Boo heard a noise in the dark. His heart went thump-thump, but he hopped outside anyway. It was just the wind! Boo smiled and went back to sleep. The end."</p>
+    <p style="margin-top:0.4rem;"><span class="accent2">Model B:</span> "In the enchanted meadows of Willowbrook, a courageous young rabbit named Bartholomew embarked upon a perilous nocturnal expedition to investigate mysterious sounds emanating from the ancient oak forest..." <span class="dim">(300 more words)</span></p>
+    <p class="dim small" style="margin-top:0.3rem;">A parent would prefer A (simple, warm, age-appropriate). An LLM judge might prefer B (more detailed, "creative"). <strong>Who is right?</strong></p>
   </div>
 
   <div class="frag">
@@ -277,16 +278,16 @@
       <h3>Evaluation Procedure (Example)</h3>
       <div class="example-box" style="font-size:0.85rem;">
         <div class="example-label" style="color:var(--accent);">Step 1: User Prompt</div>
-        <p>"Why do leaves change color in autumn?"</p>
+        <p>"Write a short bedtime story for my 5-year-old about a brave bunny."</p>
       </div>
       <div class="example-box llm" style="font-size:0.85rem;">
         <div class="example-label" style="color:var(--accent2);">Step 2: Auto-Generate Checklist</div>
-        <p>GPT-4-turbo creates criteria for this specific question:</p>
+        <p>GPT-4-turbo creates criteria for this specific task:</p>
         <ul class="small" style="margin-top:0.3rem;">
-          <li>Does it explain the role of chlorophyll?</li>
-          <li>Does it mention carotenoids and anthocyanins?</li>
-          <li>Is the explanation scientifically accurate?</li>
-          <li>Is it clear and easy to understand?</li>
+          <li>Is the language age-appropriate for a 5-year-old?</li>
+          <li>Does the story have a clear narrative arc?</li>
+          <li>Is the bunny character portrayed as brave?</li>
+          <li>Is it an appropriate length for bedtime?</li>
         </ul>
       </div>
       <div class="example-box response" style="font-size:0.85rem;">
@@ -299,7 +300,7 @@
       <div class="card">
         <p><span class="accent">WB-Score</span> (Pointwise)</p>
         <p class="small" style="margin-top:0.3rem;">Rate a single response on a <strong>1-10 scale</strong>.</p>
-        <p class="small dim" style="margin-top:0.2rem;">e.g., "This explanation scores 7/10 — accurate but misses anthocyanins."</p>
+        <p class="small dim" style="margin-top:0.2rem;">e.g., "This story scores 5/10 — appropriate but lacks narrative depth."</p>
       </div>
       <div class="card">
         <p><span class="accent2">WB-Reward</span> (Pairwise)</p>
@@ -332,47 +333,47 @@
 
 <!-- ==================== SLIDE 6: Scoring Example ==================== -->
 <div class="slide" id="s6">
-  <h2>Scoring Example: How WB-Score and WB-Reward Work</h2>
+  <h2>Scoring Example: Where LLM Judge and Human Disagree</h2>
 
   <div class="example-box" style="margin-bottom:0.6rem;">
     <div class="example-label dim">User Prompt</div>
-    <p>"Why do leaves change color in autumn?"</p>
+    <p>"Write a short bedtime story for my 5-year-old about a brave bunny."</p>
   </div>
 
   <div class="grid-2">
     <div>
       <div class="card">
-        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent">Model A</span> response:</p>
-        <p class="small" style="font-style:italic;">"Leaves change color because of the weather getting colder. The green color fades and other colors show up."</p>
+        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent">Model A</span> <span class="dim small">— human's pick</span></p>
+        <p class="small" style="font-style:italic;">"Once upon a time, a little bunny named Boo heard a noise in the dark. His heart went thump-thump, but he hopped outside anyway. It was just the wind! Boo smiled and went back to sleep. The end."</p>
         <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
-          <p class="small dim">Checklist evaluation:</p>
-          <p class="small"><span class="red">&#x2717;</span> Explains chlorophyll role? No</p>
-          <p class="small"><span class="red">&#x2717;</span> Mentions pigments by name? No</p>
-          <p class="small"><span class="yellow">~</span> Scientifically accurate? Vague</p>
-          <p class="small"><span class="green">&#x2713;</span> Easy to understand? Yes</p>
-          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="yellow">4 / 10</span></p>
+          <p class="small dim">LLM judge checklist:</p>
+          <p class="small"><span class="green">&#x2713;</span> Age-appropriate language? Yes</p>
+          <p class="small"><span class="red">&#x2717;</span> Rich narrative structure? Too simple</p>
+          <p class="small"><span class="red">&#x2717;</span> Detailed world-building? No</p>
+          <p class="small"><span class="green">&#x2713;</span> Clear resolution? Yes</p>
+          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="yellow">5 / 10</span></p>
         </div>
       </div>
     </div>
     <div>
       <div class="card">
-        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent2">Model B</span> response:</p>
-        <p class="small" style="font-style:italic;">"As days shorten, trees stop producing chlorophyll, revealing carotenoids (yellow/orange). Red comes from anthocyanins, produced in response to bright light and cool nights."</p>
+        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent2">Model B</span> <span class="dim small">— LLM judge's pick</span></p>
+        <p class="small" style="font-style:italic;">"In the enchanted meadows of Willowbrook, a courageous young rabbit named Bartholomew embarked upon a perilous nocturnal expedition..." <span class="dim">(300 words)</span></p>
         <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
-          <p class="small dim">Checklist evaluation:</p>
-          <p class="small"><span class="green">&#x2713;</span> Explains chlorophyll role? Yes</p>
-          <p class="small"><span class="green">&#x2713;</span> Mentions pigments by name? Yes</p>
-          <p class="small"><span class="green">&#x2713;</span> Scientifically accurate? Yes</p>
-          <p class="small"><span class="green">&#x2713;</span> Easy to understand? Yes</p>
-          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="green">9 / 10</span></p>
+          <p class="small dim">LLM judge checklist:</p>
+          <p class="small"><span class="yellow">~</span> Age-appropriate language? Too advanced</p>
+          <p class="small"><span class="green">&#x2713;</span> Rich narrative structure? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Detailed world-building? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Clear resolution? Yes</p>
+          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="green">8 / 10</span></p>
         </div>
       </div>
     </div>
   </div>
 
   <div class="frag">
-    <div class="highlight-box" style="margin-top:0.6rem;">
-      <p><span class="accent2">WB-Reward (pairwise):</span> Model B is <span class="green">"Much Better"</span> than Model A. &nbsp;|&nbsp; <span class="dim">Both scores are generated entirely by GPT-4-turbo — no human involved.</span></p>
+    <div class="highlight-box warn" style="margin-top:0.6rem;">
+      <p><span class="yellow">The disagreement:</span> The LLM judge picks B (more detailed, higher checklist score). The human parent picks A (simple, warm, actually suitable for a 5-year-old). <strong>The checklist favors complexity over fitness-for-purpose.</strong></p>
     </div>
   </div>
 </div>
