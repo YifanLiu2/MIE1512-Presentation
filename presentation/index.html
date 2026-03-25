@@ -364,32 +364,56 @@
 
   <div class="grid-2">
     <div>
-      <h3>How Preferences Are Collected</h3>
+      <h3>How It Works</h3>
       <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:0.4rem;">
         <div class="step" style="width:100%;"><span class="green">1.</span> A real user types any prompt they want</div>
-        <div class="step" style="width:100%;"><span class="green">2.</span> Two <strong>anonymous</strong> LLMs generate responses side by side</div>
+        <div class="step" style="width:100%;"><span class="green">2.</span> Two <strong>anonymous</strong> LLMs respond side by side</div>
         <div class="step" style="width:100%;"><span class="green">3.</span> User votes: <strong>"A is better"</strong>, <strong>"B is better"</strong>, or <strong>"Tie"</strong></div>
-        <div class="step" style="width:100%;"><span class="green">4.</span> Model identities revealed after voting — no bias</div>
+        <div class="step" style="width:100%;"><span class="green">4.</span> Model identities revealed after voting</div>
+      </div>
+      <div class="grid-3" style="margin-top:0.5rem;">
+        <div class="card" style="text-align:center; padding:0.5rem;">
+          <p style="font-size:2rem; font-weight:800; color:var(--accent);">1.7M+</p>
+          <p class="small dim">votes</p>
+        </div>
+        <div class="card" style="text-align:center; padding:0.5rem;">
+          <p style="font-size:2rem; font-weight:800; color:var(--accent2);">57K</p>
+          <p class="small dim">with full text</p>
+        </div>
+        <div class="card" style="text-align:center; padding:0.5rem;">
+          <p style="font-size:2rem; font-weight:800; color:var(--green);">64</p>
+          <p class="small dim">models</p>
+        </div>
       </div>
     </div>
     <div>
-      <h3>Scale</h3>
-      <div class="card" style="text-align:center; padding:0.8rem;">
-        <p class="big-number accent">1.7M+</p>
-        <p class="big-label">total voting records</p>
-      </div>
-      <div class="grid-2" style="margin-top:0.5rem;">
-        <div class="card" style="text-align:center; padding:0.7rem;">
-          <p style="font-size:2.5rem; font-weight:800; color:var(--accent2);">57K</p>
-          <p class="big-label">battles with full text</p>
+      <h3>Elo Rating: From Votes to Rankings</h3>
+      <div class="card" style="font-size:0.9rem;">
+        <p>Recall our bedtime story example. Suppose across many battles:</p>
+        <div style="margin-top:0.5rem;">
+          <p><span class="accent">GPT-4</span> wins against Llama-2 in <strong>80%</strong> of matchups</p>
+          <p><span class="accent">GPT-4</span> wins against Claude-3 in <strong>55%</strong> of matchups</p>
+          <p><span class="accent2">Claude-3</span> wins against Llama-2 in <strong>70%</strong> of matchups</p>
         </div>
-        <div class="card" style="text-align:center; padding:0.7rem;">
-          <p style="font-size:2.5rem; font-weight:800; color:var(--green);">64</p>
-          <p class="big-label">models evaluated</p>
+        <p style="margin-top:0.5rem;">Elo converts these pairwise win rates into a <strong>single score per model</strong> using the Bradley-Terry formula:</p>
+        <div style="margin-top:0.4rem; text-align:center;">
+          <p class="dim" style="font-size:0.85rem;">P(A beats B) = 1 / (1 + 10<sup>(Elo_B − Elo_A) / 400</sup>)</p>
         </div>
-      </div>
-      <div class="card" style="margin-top:0.5rem;">
-        <p style="font-size:0.95rem;"><strong>Elo Rating</strong> (Bradley-Terry): aggregates all votes into a single ranking score per model. Higher Elo = humans preferred this model more often.</p>
+        <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+          <div style="flex:1; text-align:center; padding:0.4rem; background:var(--surface2); border-radius:6px;">
+            <p style="font-weight:700; color:var(--accent);">GPT-4</p>
+            <p style="font-size:1.3rem; font-weight:800;">1235</p>
+          </div>
+          <div style="flex:1; text-align:center; padding:0.4rem; background:var(--surface2); border-radius:6px;">
+            <p style="font-weight:700; color:var(--accent2);">Claude-3</p>
+            <p style="font-size:1.3rem; font-weight:800;">1103</p>
+          </div>
+          <div style="flex:1; text-align:center; padding:0.4rem; background:var(--surface2); border-radius:6px;">
+            <p style="font-weight:700; color:var(--text-dim);">Llama-2</p>
+            <p style="font-size:1.3rem; font-weight:800;">1007</p>
+          </div>
+        </div>
+        <p class="dim small" style="margin-top:0.4rem;">Higher Elo = humans preferred this model's responses more often overall.</p>
       </div>
     </div>
   </div>
@@ -469,32 +493,31 @@
 <!-- ==================== SLIDE 11: Battle-Level Agreement ==================== -->
 <div class="slide" id="s11">
   <h2>Our Result: Prompt-Level Agreement by Task Category</h2>
-  <p class="dim" style="margin-bottom:0.5rem;">We ran GPT-4o-mini as judge on 100 Arena battles per category and compared with human votes directly.</p>
+  <p class="dim" style="margin-bottom:0.5rem;">LLM judge evaluated 100 Arena battles per category. Agreement = both human and judge pick the same winner.</p>
 
   <div class="grid-2">
     <div>
       <div class="fig-container">
-        <img src="figures/llm_judge_agreement_raw.png" alt="Raw agreement by category" style="max-height:42vh;">
+        <img src="figures/llm_judge_agreement_raw.png" alt="Raw agreement by category" style="max-height:55vh;">
       </div>
     </div>
     <div>
-      <table style="font-size:0.9rem;">
-        <tr><th>Category</th><th>n</th><th>Agreement</th><th>Interpretation</th></tr>
-        <tr><td><span class="tag tag-green">Mathematics</span></td><td>100</td><td class="green">56%</td><td class="small">Objective, verifiable</td></tr>
-        <tr><td><span class="tag tag-green">Info Seeking</span></td><td>100</td><td class="green">56%</td><td class="small">Factual, clear answers</td></tr>
-        <tr><td><span class="tag tag-blue">Reasoning</span></td><td>100</td><td>53%</td><td class="small">Partially objective</td></tr>
-        <tr><td><span class="tag tag-blue">Summarization</span></td><td>100</td><td>52%</td><td class="small">Accuracy + style</td></tr>
-        <tr><td><span class="tag tag-blue">Coding</span></td><td>100</td><td>50%</td><td class="small">Code correctness</td></tr>
-        <tr><td><span class="tag tag-red">Role-Playing</span></td><td>100</td><td class="yellow">47%</td><td class="small">Subjective, persona</td></tr>
-        <tr><td><span class="tag tag-red">Translation</span></td><td>100</td><td class="yellow">43%</td><td class="small">Cross-lingual</td></tr>
-        <tr><td><span class="tag tag-red">Creative Writing</span></td><td>100</td><td class="red">37%</td><td class="small">Highly subjective</td></tr>
-        <tr style="border-top:2px solid var(--surface3);"><td><strong>Overall</strong></td><td>800</td><td><strong>49.2%</strong></td><td class="small dim">3-way random = 33%</td></tr>
-      </table>
-    </div>
-  </div>
+      <h3 style="color:var(--green);">Easy to judge (objective tasks)</h3>
+      <div class="card" style="font-size:0.85rem; padding:0.8rem 1rem;">
+        <p><span class="tag tag-green">Math 56%</span> "Solve: ∫x²dx" — one answer is correct, the other is wrong. Both human and judge agree.</p>
+        <p style="margin-top:0.4rem;"><span class="tag tag-green">Info Seeking 56%</span> "What is the capital of Australia?" — factual, verifiable. Easy to spot the better response.</p>
+      </div>
 
-  <div class="highlight-box" style="margin-top:0.5rem;">
-    <p><strong>Pattern:</strong> Agreement is higher on <span class="green">objective tasks</span> (math, info seeking: 56%) and drops significantly on <span class="red">subjective tasks</span> (creative writing: 37%, barely above random chance).</p>
+      <h3 style="color:var(--red); margin-top:0.8rem;">Hard to judge (subjective tasks)</h3>
+      <div class="card" style="font-size:0.85rem; padding:0.8rem 1rem;">
+        <p><span class="tag tag-red">Creative Writing 37%</span> "Write a poem about loneliness" — is a short, raw poem better than a long, polished one? Humans pick by feeling; LLM judges pick by structure.</p>
+        <p style="margin-top:0.4rem;"><span class="tag tag-red">Translation 43%</span> "Translate to French" — subtle fluency and cultural nuance that the LLM judge (English-centric) may not capture.</p>
+      </div>
+
+      <div class="highlight-box" style="margin-top:0.6rem;">
+        <p style="font-size:0.9rem;"><strong>Overall: 49.2%</strong> agreement (random = 33%). The LLM judge is useful, but its reliability depends heavily on task type.</p>
+      </div>
+    </div>
   </div>
 </div>
 
