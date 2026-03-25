@@ -94,17 +94,13 @@
     margin: 0.5rem 0;
     font-size: 0.95rem;
   }
-
   .example-box.human { border-left-color: var(--green); }
   .example-box.llm { border-left-color: var(--accent2); }
   .example-box.response { border-left-color: var(--yellow); background: var(--surface2); }
 
   .example-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.3rem;
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem;
   }
 
   table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
@@ -119,32 +115,20 @@
   .fig-container img { max-width: 100%; max-height: 50vh; border-radius: 8px; border: 1px solid var(--surface3); }
 
   .arrow-flow {
-    display: flex; align-items: center; gap: 0.8rem;
-    font-size: 1rem; flex-wrap: wrap;
+    display: flex; align-items: center; gap: 0.8rem; font-size: 1rem; flex-wrap: wrap;
   }
   .arrow-flow .step {
     background: var(--surface); border: 1px solid var(--surface3);
     border-radius: 8px; padding: 0.6rem 1rem;
   }
-  .arrow-flow .arrow { color: var(--accent); font-size: 1.5rem; }
 
   .highlight-box {
     background: rgba(79,140,255,0.08);
     border: 1px solid rgba(79,140,255,0.25);
-    border-radius: 8px;
-    padding: 1rem 1.3rem;
-    margin: 0.5rem 0;
+    border-radius: 8px; padding: 1rem 1.3rem; margin: 0.5rem 0;
   }
-
-  .highlight-box.warn {
-    background: rgba(251,191,36,0.08);
-    border-color: rgba(251,191,36,0.25);
-  }
-
-  .highlight-box.good {
-    background: rgba(52,211,153,0.08);
-    border-color: rgba(52,211,153,0.25);
-  }
+  .highlight-box.warn { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.25); }
+  .highlight-box.good { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.25); }
 
   ul { padding-left: 1.3rem; }
   li { margin-bottom: 0.4rem; }
@@ -178,25 +162,25 @@
     <div class="example-label dim">Example: User asks two LLMs the same question</div>
     <p><span class="accent">User:</span> "Write a short bedtime story for my 5-year-old about a brave bunny."</p>
     <p style="margin-top:0.4rem;"><span class="accent2">Model A:</span> "Once upon a time, a little bunny named Boo heard a noise in the dark. His heart went thump-thump, but he hopped outside anyway. It was just the wind! Boo smiled and went back to sleep. The end."</p>
-    <p style="margin-top:0.4rem;"><span class="accent2">Model B:</span> "In the enchanted meadows of Willowbrook, a courageous young rabbit named Bartholomew embarked upon a perilous nocturnal expedition to investigate mysterious sounds emanating from the ancient oak forest..." <span class="dim">(300 more words)</span></p>
+    <p style="margin-top:0.4rem;"><span class="accent2">Model B:</span> "In the enchanted meadows of Willowbrook, a courageous young rabbit named Bartholomew embarked upon a perilous nocturnal expedition..." <span class="dim">(300 more words)</span></p>
     <p class="dim small" style="margin-top:0.3rem;">A parent would prefer A (simple, warm, age-appropriate). An LLM judge might prefer B (more detailed, "creative"). <strong>Who is right?</strong></p>
   </div>
 
   <div class="frag">
     <div class="card">
-      <p><span class="green">Gold standard:</span> Human evaluation via crowdsourcing — real users compare two LLM responses and vote for the one they prefer. But this is <span class="red">slow, expensive, and hard to scale</span> (collecting 57K votes took over a year).</p>
+      <p><span class="green">Gold standard:</span> Human evaluation via crowdsourcing — real users compare two LLM responses and vote for the one they prefer. But this is <span class="red">slow, expensive, and hard to scale</span>.</p>
     </div>
   </div>
 
   <div class="frag">
     <div class="card">
-      <p><span class="accent">Alternative:</span> Use a strong LLM (e.g., GPT-4) as an automated judge to score other LLMs' outputs. Recent benchmarks report <span class="yellow">Pearson r = 0.95</span> correlation with human evaluation at the aggregate level.</p>
+      <p><span class="accent">Alternative:</span> Use a strong LLM (e.g., GPT-4) as an automated judge to score other LLMs' outputs. Existing work reports <span class="yellow">Pearson r = 0.95</span> with human evaluation — an unexpectedly high number.</p>
     </div>
   </div>
 
   <div class="frag">
     <div class="highlight-box warn">
-      <p><strong>But this r = 0.95 is computed over only 14 model-level data points.</strong> Every benchmark can tell GPT-4 from Llama-2 — the large inter-model gaps inflate correlation. <span class="accent">Does this agreement hold across all task types?</span></p>
+      <p><strong>Is r = 0.95 generalizable?</strong> Does this hold uniformly across all task types — coding, math, creative writing, translation — or does the agreement break down for certain categories?</p>
     </div>
   </div>
 </div>
@@ -234,104 +218,99 @@
   </div>
 </div>
 
-<!-- ==================== SLIDE 4: Method Background ==================== -->
+<!-- ==================== SLIDE 4: LLM-as-Judge Method ==================== -->
 <div class="slide" id="s4">
   <h2>Method Background: LLM-as-Judge</h2>
-  <p style="margin-bottom:1rem;">Instead of expensive human evaluation, use a powerful LLM to judge other LLMs' outputs automatically.</p>
+  <p class="dim small" style="margin-bottom:0.3rem;">Lin et al., "WildBench: Benchmarking LLMs with Challenging Tasks from Real Users in the Wild," ICLR 2025 Spotlight</p>
 
-  <div class="grid-2">
-    <div>
-      <h3>How It Works</h3>
-      <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:0.5rem;">
-        <div class="step" style="width:100%;"><span class="accent">1.</span> Given a user prompt, generate a <strong>task-specific checklist</strong> (3-10 criteria)</div>
-        <div class="step" style="width:100%;"><span class="accent">2.</span> Feed the prompt + LLM response + checklist to <strong>GPT-4-turbo</strong></div>
-        <div class="step" style="width:100%;"><span class="accent">3.</span> GPT-4-turbo scores the response against each checklist item</div>
-        <div class="step" style="width:100%;"><span class="accent">4.</span> Aggregate into <strong>WB-Score</strong> (1-10) or <strong>WB-Reward</strong> (pairwise winner)</div>
-      </div>
-    </div>
-    <div>
-      <h3>Why Checklists?</h3>
-      <div class="card">
-        <p style="font-size:0.95rem;">Without a checklist, the judge LLM might focus on surface features (fluency, length). The checklist forces it to evaluate <strong>task-specific requirements</strong>:</p>
-        <div style="margin-top:0.6rem;">
-          <span class="tag tag-blue">Correctness</span>
-          <span class="tag tag-blue">Completeness</span>
-          <span class="tag tag-blue">Edge cases</span>
-          <span class="tag tag-blue">Efficiency</span>
-          <span class="tag tag-blue">Readability</span>
+  <div class="frag">
+    <div class="grid-2" style="margin-top:0.5rem;">
+      <div>
+        <h3>How It Works</h3>
+        <div class="example-box" style="font-size:0.85rem;">
+          <div class="example-label" style="color:var(--accent);">Step 1: User Prompt</div>
+          <p>"Write a short bedtime story for my 5-year-old about a brave bunny."</p>
+        </div>
+        <div class="example-box llm" style="font-size:0.85rem;">
+          <div class="example-label" style="color:var(--accent2);">Step 2: Auto-Generate Checklist</div>
+          <p>GPT-4-turbo creates task-specific criteria:</p>
+          <ul class="small" style="margin-top:0.3rem;">
+            <li>Is the language age-appropriate for a 5-year-old?</li>
+            <li>Does the story have a clear narrative arc?</li>
+            <li>Is the bunny character portrayed as brave?</li>
+            <li>Is it an appropriate length for bedtime?</li>
+          </ul>
+        </div>
+        <div class="example-box response" style="font-size:0.85rem;">
+          <div class="example-label" style="color:var(--yellow);">Step 3: Score Against Checklist</div>
+          <p>GPT-4-turbo evaluates the LLM response against each item and assigns a final score.</p>
         </div>
       </div>
-      <div class="card" style="margin-top:0.5rem;">
-        <p class="small dim"><strong>Paper:</strong> Lin et al., "WildBench: Benchmarking LLMs with Challenging Tasks from Real Users in the Wild," ICLR 2025 Spotlight</p>
+      <div>
+        <h3>Dataset &amp; Scale</h3>
+        <div class="card">
+          <p><strong>1,024 real-user tasks</strong> from WildChat, classified into 12 task categories:</p>
+          <div style="margin-top:0.5rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
+            <span class="tag tag-purple">Coding</span>
+            <span class="tag tag-purple">Math</span>
+            <span class="tag tag-purple">Creative Writing</span>
+            <span class="tag tag-purple">Reasoning</span>
+            <span class="tag tag-purple">Translation</span>
+            <span class="tag tag-purple">Info Seeking</span>
+            <span class="tag tag-purple">Role-Playing</span>
+            <span class="tag tag-purple">Summarization</span>
+          </div>
+          <p style="margin-top:0.5rem;"><strong>60+ LLMs</strong> evaluated using GPT-4-turbo as judge</p>
+        </div>
+        <div class="card">
+          <p class="dim small">Reports Pearson r = 0.98 with Chatbot Arena Elo at the aggregate model level (14 data points)</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 5: WildBench Procedure ==================== -->
+<!-- ==================== SLIDE 5: Two Scoring Methods ==================== -->
 <div class="slide" id="s5">
-  <h2>WildBench: Checklist-Based LLM Evaluation</h2>
-  <p class="dim" style="margin-bottom:0.8rem;">Uses GPT-4-turbo to evaluate other LLMs' performance on 1,024 real-user tasks from WildChat.</p>
+  <h2>Two Scoring Methods</h2>
 
   <div class="grid-2">
     <div>
-      <h3>Evaluation Procedure (Example)</h3>
-      <div class="example-box" style="font-size:0.85rem;">
-        <div class="example-label" style="color:var(--accent);">Step 1: User Prompt</div>
-        <p>"Write a short bedtime story for my 5-year-old about a brave bunny."</p>
-      </div>
-      <div class="example-box llm" style="font-size:0.85rem;">
-        <div class="example-label" style="color:var(--accent2);">Step 2: Auto-Generate Checklist</div>
-        <p>GPT-4-turbo creates criteria for this specific task:</p>
-        <ul class="small" style="margin-top:0.3rem;">
-          <li>Is the language age-appropriate for a 5-year-old?</li>
-          <li>Does the story have a clear narrative arc?</li>
-          <li>Is the bunny character portrayed as brave?</li>
-          <li>Is it an appropriate length for bedtime?</li>
-        </ul>
-      </div>
-      <div class="example-box response" style="font-size:0.85rem;">
-        <div class="example-label" style="color:var(--yellow);">Step 3: Judge Scores the Response</div>
-        <p>GPT-4-turbo evaluates the LLM's response against each checklist item and assigns a score.</p>
+      <div class="card" style="min-height:18rem;">
+        <h3 style="color:var(--accent);">WB-Score (Pointwise)</h3>
+        <p>Rate a <strong>single response</strong> on a 1-10 scale against the checklist.</p>
+        <div class="example-box" style="margin-top:0.8rem; font-size:0.85rem;">
+          <div class="example-label dim">Example</div>
+          <p><span class="accent">Prompt:</span> "Write a bedtime story for a 5-year-old..."</p>
+          <p style="margin-top:0.3rem;"><span class="accent2">Model A's story</span> → evaluated against 4 checklist items</p>
+          <p style="margin-top:0.3rem;"><strong>Score: 5/10</strong> <span class="dim">— age-appropriate but lacks narrative depth</span></p>
+        </div>
+        <p class="dim small" style="margin-top:0.5rem;">Gives an absolute quality measure for each model on each task.</p>
       </div>
     </div>
     <div>
-      <h3>Two Scoring Modes</h3>
-      <div class="card">
-        <p><span class="accent">WB-Score</span> (Pointwise)</p>
-        <p class="small" style="margin-top:0.3rem;">Rate a single response on a <strong>1-10 scale</strong>.</p>
-        <p class="small dim" style="margin-top:0.2rem;">e.g., "This story scores 5/10 — appropriate but lacks narrative depth."</p>
-      </div>
-      <div class="card">
-        <p><span class="accent2">WB-Reward</span> (Pairwise)</p>
-        <p class="small" style="margin-top:0.3rem;">Compare two responses against 3 reference models. Five outcomes:</p>
-        <div style="margin-top:0.4rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
+      <div class="card" style="min-height:18rem;">
+        <h3 style="color:var(--accent2);">WB-Reward (Pairwise)</h3>
+        <p>Compare <strong>two responses</strong> head-to-head. Five possible outcomes:</p>
+        <div style="margin-top:0.6rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
           <span class="tag tag-green">Much Better</span>
           <span class="tag tag-green">Slightly Better</span>
           <span class="tag tag-blue">Tie</span>
           <span class="tag tag-red">Slightly Worse</span>
           <span class="tag tag-red">Much Worse</span>
         </div>
-      </div>
-      <div class="card">
-        <p><span class="yellow">Task Categories</span></p>
-        <p class="small" style="margin-top:0.3rem;">All 1,024 tasks are classified into 12 categories:</p>
-        <div style="margin-top:0.4rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
-          <span class="tag tag-purple">Coding</span>
-          <span class="tag tag-purple">Math</span>
-          <span class="tag tag-purple">Creative Writing</span>
-          <span class="tag tag-purple">Reasoning</span>
-          <span class="tag tag-purple">Translation</span>
-          <span class="tag tag-purple">Info Seeking</span>
-          <span class="tag tag-purple">Role-Playing</span>
-          <span class="tag tag-purple">...</span>
+        <div class="example-box" style="margin-top:0.8rem; font-size:0.85rem;">
+          <div class="example-label dim">Example</div>
+          <p><span class="accent">Model A</span> (simple story) vs <span class="accent2">Model B</span> (elaborate story)</p>
+          <p style="margin-top:0.3rem;"><strong>Verdict: B is "Much Better"</strong> <span class="dim">— more detailed, richer narrative</span></p>
+          <p class="dim" style="margin-top:0.2rem;">(But a human parent might disagree...)</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 6: Scoring Example ==================== -->
+<!-- ==================== SLIDE 6: Scoring Example — Disagreement ==================== -->
 <div class="slide" id="s6">
   <h2>Scoring Example: Where LLM Judge and Human Disagree</h2>
 
@@ -381,7 +360,7 @@
 <!-- ==================== SLIDE 7: Chatbot Arena Dataset ==================== -->
 <div class="slide" id="s7">
   <h2>Dataset: Chatbot Arena — Human Preference Benchmark</h2>
-  <p style="margin-bottom:0.8rem;">We apply the LLM judgment method to this large-scale <span class="green">human preference</span> dataset to test whether LLM judges agree with real humans.</p>
+  <p class="dim small" style="margin-bottom:0.5rem;">Chiang et al., "Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference," ICML 2024</p>
 
   <div class="grid-2">
     <div>
@@ -389,112 +368,83 @@
       <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:0.4rem;">
         <div class="step" style="width:100%;"><span class="green">1.</span> A real user types any prompt they want</div>
         <div class="step" style="width:100%;"><span class="green">2.</span> Two <strong>anonymous</strong> LLMs generate responses side by side</div>
-        <div class="step" style="width:100%;"><span class="green">3.</span> The user reads both and clicks: <strong>"A is better"</strong>, <strong>"B is better"</strong>, or <strong>"Tie"</strong></div>
-        <div class="step" style="width:100%;"><span class="green">4.</span> Model identities are revealed after voting — no bias</div>
-      </div>
-      <div class="card" style="margin-top:0.5rem;">
-        <p class="small dim"><strong>Paper:</strong> Chiang et al., "Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference," ICML 2024</p>
+        <div class="step" style="width:100%;"><span class="green">3.</span> User votes: <strong>"A is better"</strong>, <strong>"B is better"</strong>, or <strong>"Tie"</strong></div>
+        <div class="step" style="width:100%;"><span class="green">4.</span> Model identities revealed after voting — no bias</div>
       </div>
     </div>
     <div>
-      <h3>Scale of the Dataset</h3>
-      <div class="card" style="text-align:center; padding:1rem;">
+      <h3>Scale</h3>
+      <div class="card" style="text-align:center; padding:0.8rem;">
         <p class="big-number accent">1.7M+</p>
         <p class="big-label">total voting records</p>
       </div>
-      <div class="card" style="text-align:center; padding:1rem;">
-        <p class="big-number accent2">57,477</p>
-        <p class="big-label">battles with full text (prompt + responses)</p>
-      </div>
       <div class="grid-2" style="margin-top:0.5rem;">
         <div class="card" style="text-align:center; padding:0.7rem;">
-          <p style="font-size:2rem; font-weight:800; color:var(--green);">64</p>
-          <p class="big-label">models</p>
+          <p style="font-size:2.5rem; font-weight:800; color:var(--accent2);">57K</p>
+          <p class="big-label">battles with full text</p>
         </div>
         <div class="card" style="text-align:center; padding:0.7rem;">
-          <p style="font-size:2rem; font-weight:800; color:var(--yellow);">Elo</p>
-          <p class="big-label">Bradley-Terry ratings</p>
+          <p style="font-size:2.5rem; font-weight:800; color:var(--green);">64</p>
+          <p class="big-label">models evaluated</p>
         </div>
+      </div>
+      <div class="card" style="margin-top:0.5rem;">
+        <p style="font-size:0.95rem;"><strong>Elo Rating</strong> (Bradley-Terry): aggregates all votes into a single ranking score per model. Higher Elo = humans preferred this model more often.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 8: Arena Data Example ==================== -->
+<!-- ==================== SLIDE 8: Our Approach ==================== -->
 <div class="slide" id="s8">
-  <h2>Arena Data: What Each Battle Looks Like</h2>
-
-  <div class="card" style="margin-bottom:0.8rem;">
-    <p class="dim small" style="margin-bottom:0.5rem;">Each of the 57,477 records contains:</p>
-    <table>
-      <tr><th style="width:20%;">Field</th><th>Example Value</th></tr>
-      <tr><td class="accent">prompt</td><td>"Is it morally right to try to have a certain percentage of females on managerial positions?"</td></tr>
-      <tr><td class="accent2">model_a</td><td>gpt-4-1106-preview <span class="dim">(hidden from user during vote)</span></td></tr>
-      <tr><td class="accent2">model_b</td><td>gpt-4-0613 <span class="dim">(hidden from user during vote)</span></td></tr>
-      <tr><td>response_a</td><td class="small">"The question of whether it is morally right to aim for a certain percentage..." (full text)</td></tr>
-      <tr><td>response_b</td><td class="small">"As an AI, I don't have personal beliefs..." (full text)</td></tr>
-      <tr><td class="green">winner</td><td><strong>model_a</strong> &nbsp; <span class="dim">← the human's stated preference</span></td></tr>
-    </table>
-  </div>
-
-  <div class="frag">
-    <div class="highlight-box">
-      <p><strong>Elo Rating</strong> = aggregate all 1.7M votes using the Bradley-Terry model to produce a single ranking score per model. <span class="dim">P(A beats B) = 1 / (1 + 10<sup>(Elo_B - Elo_A)/400</sup>)</span>. Higher Elo = humans preferred this model more often overall.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 9: What We Do ==================== -->
-<div class="slide" id="s9">
-  <h2>Our Approach: Applying WildBench's Method to Arena Data</h2>
+  <h2>Our Approach</h2>
+  <p style="margin-bottom:1rem;">We apply the LLM judgment method to Chatbot Arena's human preference data and compare the two verdicts.</p>
 
   <div class="grid-2">
     <div>
-      <h3>1. Apply LLM-as-Judge on Arena Battles</h3>
+      <h3>1. LLM-as-Judge on Arena Battles</h3>
       <div class="card">
-        <p style="font-size:0.95rem;">For each Arena battle, we feed the <strong>same prompt + response_a + response_b</strong> to an LLM judge and ask: <em>"Which response is better?"</em></p>
-        <p style="font-size:0.95rem; margin-top:0.5rem;">Now each battle has <strong>two verdicts</strong>:</p>
+        <p style="font-size:0.95rem;">For each Arena battle, we feed the <strong>same prompt + response A + response B</strong> to an LLM judge and ask: which is better?</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">Each battle now has <strong>two verdicts</strong>:</p>
         <div style="margin-top:0.5rem;">
           <p><span class="green">Human vote:</span> A wins / B wins / Tie</p>
           <p><span class="accent2">LLM judge:</span> A wins / B wins / Tie</p>
         </div>
-        <p class="dim small" style="margin-top:0.5rem;">We use GPT-4o-mini as judge (cost: ~$23 for full dataset)</p>
+        <p style="margin-top:0.5rem; font-size:0.95rem;">We measure: <span class="accent">how often do they agree?</span></p>
       </div>
     </div>
     <div>
-      <h3>2. Apply Task Category Breakdown</h3>
+      <h3>2. Task Category Breakdown</h3>
       <div class="card">
-        <p style="font-size:0.95rem;">We classify each Arena prompt into WildBench's task categories using keyword matching:</p>
+        <p style="font-size:0.95rem;">We classify each Arena prompt into task categories using keyword matching:</p>
         <div style="margin-top:0.5rem;">
           <p class="small"><span class="mono">"Write python code..."</span> → <span class="tag tag-purple">Coding</span></p>
           <p class="small"><span class="mono">"Solve this integral..."</span> → <span class="tag tag-purple">Math</span></p>
           <p class="small"><span class="mono">"Translate to French..."</span> → <span class="tag tag-purple">Translation</span></p>
           <p class="small"><span class="mono">"Write me a poem..."</span> → <span class="tag tag-purple">Creative Writing</span></p>
         </div>
-      </div>
-      <div class="card" style="margin-top:0.5rem;">
-        <p style="font-size:0.95rem;"><strong>Key question:</strong> compute <span class="accent">agreement rate</span> between LLM judge and human per category. Does the LLM judge agree with humans on coding tasks? Math? Translation?</p>
+        <p style="margin-top:0.5rem; font-size:0.95rem;">Then compute agreement rate <strong>per category</strong> — not just overall.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 10: Results Title ==================== -->
-<div class="slide" id="s10">
+<!-- ==================== SLIDE 9: Results Title ==================== -->
+<div class="slide" id="s9">
   <div style="text-align:center; margin-top:5vh;">
     <p class="dim" style="font-size:1rem; margin-bottom:1rem;">Part III</p>
     <h1 style="font-size:4rem;">Results</h1>
   </div>
 </div>
 
-<!-- ==================== SLIDE 11: WildBench's Original Result ==================== -->
-<div class="slide" id="s11">
-  <h2>WildBench's Reported Correlation (Original Result)</h2>
+<!-- ==================== SLIDE 10: Existing Correlation ==================== -->
+<div class="slide" id="s10">
+  <h2>Existing Result: Model-Level Correlation</h2>
 
   <div class="grid-2">
     <div>
       <div class="card">
-        <h3 style="color:var(--text);">What WildBench Reports</h3>
+        <h3 style="color:var(--text);">Reported Correlation</h3>
         <table>
           <tr><th>Comparison</th><th>Pearson r</th></tr>
           <tr><td>WB-Reward vs Arena Elo (top 6)</td><td class="green">0.984</td></tr>
@@ -506,27 +456,20 @@
     </div>
     <div>
       <div class="highlight-box warn">
-        <h3 style="color:var(--yellow);">Why This Is Misleading</h3>
-        <p style="margin-bottom:0.5rem;"><strong>Model-level, not task/prompt-level.</strong></p>
-        <p style="font-size:0.95rem;">Each model gets <strong>one overall WB-Score</strong> and <strong>one Elo</strong>. The correlation is computed across just <strong>14 (x, y) pairs</strong>.</p>
-        <p style="font-size:0.95rem; margin-top:0.5rem;">This mainly captures <strong>cross-model differences</strong> — every benchmark agrees that GPT-4 &gt; Llama-2. The large inter-model gaps inflate the correlation.</p>
-        <p style="font-size:0.95rem; margin-top:0.5rem;">It tells us nothing about whether the LLM judge agrees with humans on <span class="accent">individual prompts</span> or <span class="accent">specific task types</span>.</p>
+        <h3 style="color:var(--yellow);">Limitation</h3>
+        <p style="font-size:0.95rem; margin-bottom:0.5rem;"><strong>Model-level, not prompt-level.</strong></p>
+        <p style="font-size:0.95rem;">Each model gets one overall WB-Score and one Elo. The correlation is computed across just <strong>14 data points</strong>.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">This mainly captures <strong>cross-model differences</strong> — every benchmark agrees GPT-4 &gt; Llama-2. The large gaps inflate the number.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">It tells us nothing about agreement on <span class="accent">individual prompts</span> or <span class="accent">specific task types</span>.</p>
       </div>
-    </div>
-  </div>
-
-  <div class="frag">
-    <div class="fig-container">
-      <img src="figures/cross_benchmark.png" alt="Cross-benchmark correlation" style="max-height:30vh;">
-      <p class="dim small">Our replication: r = 0.954 with 12 overlapping models — confirming the high aggregate correlation</p>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 12: Our Results — Battle-Level Agreement ==================== -->
-<div class="slide" id="s12">
-  <h2>Our Results: Battle-Level LLM Judge vs Human Agreement</h2>
-  <p class="dim" style="margin-bottom:0.5rem;">GPT-4o-mini judged 800 Arena battles (100 per category). Raw agreement rate = does the LLM judge pick the same winner as the human?</p>
+<!-- ==================== SLIDE 11: Battle-Level Agreement ==================== -->
+<div class="slide" id="s11">
+  <h2>Our Result: Prompt-Level Agreement by Task Category</h2>
+  <p class="dim" style="margin-bottom:0.5rem;">We ran GPT-4o-mini as judge on 100 Arena battles per category and compared with human votes directly.</p>
 
   <div class="grid-2">
     <div>
@@ -551,82 +494,72 @@
   </div>
 
   <div class="highlight-box" style="margin-top:0.5rem;">
-    <p><strong>Pattern:</strong> LLM judges agree with humans more on <span class="green">objective tasks</span> (math 56%, info seeking 56%) and least on <span class="red">subjective tasks</span> (creative writing 37%). Overall 49% includes ties — humans say "Tie" 32% of the time, but the LLM judge almost never does (1.6%).</p>
+    <p><strong>Pattern:</strong> Agreement is higher on <span class="green">objective tasks</span> (math, info seeking: 56%) and drops significantly on <span class="red">subjective tasks</span> (creative writing: 37%, barely above random chance).</p>
   </div>
 </div>
 
-<!-- ==================== SLIDE 13: Confusion Matrix ==================== -->
-<div class="slide" id="s13">
-  <h2>Diagnosis: The Tie Problem</h2>
+<!-- ==================== SLIDE 12: Verdict Distribution ==================== -->
+<div class="slide" id="s12">
+  <h2>Analysis: Different Decision Patterns</h2>
+  <p class="dim" style="margin-bottom:0.5rem;">Humans and LLM judges don't just disagree on individual battles — they have fundamentally different decision-making distributions.</p>
 
   <div class="grid-2">
     <div>
       <div class="fig-container">
-        <img src="figures/llm_judge_confusion.png" alt="Confusion matrix" style="max-height:42vh;">
+        <img src="figures/verdict_distribution.png" alt="Verdict distribution comparison" style="max-height:40vh;">
       </div>
     </div>
     <div>
       <div class="fig-container">
-        <img src="figures/llm_judge_tie_rate.png" alt="Tie rate comparison" style="max-height:42vh;">
+        <img src="figures/llm_judge_confusion.png" alt="Confusion matrix" style="max-height:40vh;">
       </div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:0.8rem;">
-    <div class="grid-3">
+  <div class="card" style="margin-top:0.6rem;">
+    <div class="grid-2">
       <div>
-        <p class="small"><span class="green">Human voters</span> say "Tie" <strong>31.8%</strong> of the time (254/800). Many battles are genuinely close — both responses are comparable.</p>
+        <p style="font-size:0.95rem;"><span class="green">Humans are more conservative:</span> they say "Tie" <strong>31.8%</strong> of the time (254/800). When both responses seem comparable, humans are comfortable saying neither is clearly better.</p>
       </div>
       <div>
-        <p class="small"><span class="accent2">LLM judge</span> says "Tie" only <strong>1.6%</strong> of the time (13/800). It almost always picks a winner, even when humans couldn't decide.</p>
-      </div>
-      <div>
-        <p class="small"><span class="yellow">Implication:</span> The LLM judge is <strong>overconfident</strong>. On the 254 human-tie battles, the judge's forced choice is essentially a coin flip — dragging down raw agreement.</p>
+        <p style="font-size:0.95rem;"><span class="accent2">LLM judges are more decisive:</span> they say "Tie" only <strong>1.6%</strong> of the time (13/800). The judge almost always picks a winner — even on battles where humans see no meaningful difference.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 15: Ongoing & Future ==================== -->
-<div class="slide" id="s15">
+<!-- ==================== SLIDE 13: Ongoing & Future ==================== -->
+<div class="slide" id="s13">
   <h2>Ongoing &amp; Future Work</h2>
 
   <div class="grid-2">
     <div>
       <h3>Ongoing</h3>
       <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent">1. Full-scale evaluation</span></p>
-        <p class="small">Run GPT-4o-mini judge on all 57,477 Arena battles (~$23) instead of the 800-sample pilot.</p>
+        <p style="margin-bottom:0.5rem;"><span class="accent">1. Full-scale study</span></p>
+        <p class="small">Scale the LLM judge evaluation from the current 800-battle pilot to the <strong>full 57,477 battles</strong> in the Arena dataset for statistically robust per-category results.</p>
       </div>
       <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent">2. Per-category WildBench scores</span></p>
-        <p class="small">Load WildBench's per-category WB-Scores (not just overall) for a fairer category-to-category comparison with Arena.</p>
-      </div>
-      <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent">3. AlpacaEval 2 triangulation</span></p>
-        <p class="small">Add length-controlled win rates from AlpacaEval 2 as a third evaluation perspective.</p>
+        <p style="margin-bottom:0.5rem;"><span class="accent">2. Improved categorization</span></p>
+        <p class="small">Current keyword-based classification is limited (59.6% of prompts fall into "Other"). Planned improvement: combine <strong>keyword matching + vector similarity</strong> using sentence embeddings to classify ambiguous prompts into the nearest task category.</p>
       </div>
     </div>
     <div>
       <h3>Future Directions</h3>
       <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent2">1. Checklist ablation</span></p>
-        <p class="small">Run the same judge with and without checklists on Arena data — does the checklist actually improve agreement?</p>
+        <p style="margin-bottom:0.5rem;"><span class="accent2">3. Judge scaling law</span></p>
+        <p class="small">Does a larger judge model align better with humans? Compare GPT-4o-mini vs GPT-4-turbo vs Claude 3.5 as judge to test whether scaling the judge improves human agreement.</p>
       </div>
       <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent2">2. Judge model comparison</span></p>
-        <p class="small">Compare GPT-4o-mini vs GPT-4-turbo vs Claude as judge — does a stronger judge agree more with humans?</p>
-      </div>
-      <div class="card">
-        <p style="margin-bottom:0.5rem;"><span class="accent2">3. Elo gap analysis</span></p>
-        <p class="small">Does the LLM judge agree with humans more on "easy" battles (large Elo gap between models) vs "hard" battles (close Elo)?</p>
+        <p style="margin-bottom:0.5rem;"><span class="accent2">4. Elo gap analysis</span></p>
+        <p class="small">Analyze agreement as a function of <strong>Elo gap</strong> between the two models in each battle. Hypothesis: the LLM judge agrees with humans more on "easy" battles (large Elo gap, e.g., GPT-4 vs Llama-2) than "hard" battles (close Elo, e.g., GPT-4 vs Claude 3).</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 16: Conclusion ==================== -->
-<div class="slide" id="s16">
+<!-- ==================== SLIDE 14: Summary ==================== -->
+<div class="slide" id="s14">
   <div style="text-align:center;">
     <h1 style="font-size:3rem; margin-bottom:2rem;">Summary</h1>
     <div style="max-width:800px; margin:0 auto; text-align:left;">
@@ -634,16 +567,16 @@
         <p style="font-size:1.1rem;"><span class="accent">Question:</span> Can LLM judgment capture human preference across task categories?</p>
       </div>
       <div class="card" style="margin-bottom:1rem;">
-        <p style="font-size:1.1rem;"><span class="green">Finding 1:</span> The reported r = 0.95 correlation is based on 14 model-level aggregate points — it masks category-level variation.</p>
+        <p style="font-size:1.1rem;"><span class="green">Finding 1:</span> At the prompt level, agreement ranges from <span class="green">56%</span> (math, info seeking) to <span class="red">37%</span> (creative writing) — far below the r = 0.95 aggregate correlation.</p>
       </div>
       <div class="card" style="margin-bottom:1rem;">
-        <p style="font-size:1.1rem;"><span class="yellow">Finding 2:</span> At the individual battle level, raw LLM-human agreement ranges from <span class="green">56%</span> (math, info seeking) to <span class="red">37%</span> (creative writing) — overall 49.2%.</p>
+        <p style="font-size:1.1rem;"><span class="yellow">Finding 2:</span> LLM judges and humans have different decision patterns — humans are conservative (32% ties), while LLM judges are decisive (1.6% ties).</p>
       </div>
       <div class="card" style="margin-bottom:1rem;">
-        <p style="font-size:1.1rem;"><span class="accent2">Finding 3:</span> The LLM judge is overconfident — it says "Tie" 1.6% vs humans' 31.8%, suggesting it forces decisions on ambiguous battles.</p>
+        <p style="font-size:1.1rem;"><span class="accent2">Finding 3:</span> Agreement is higher on objective tasks (math, coding, info seeking) and lower on subjective tasks (creative writing, role-playing, translation).</p>
       </div>
       <div class="highlight-box" style="margin-top:1rem;">
-        <p style="font-size:1.15rem; text-align:center;"><strong>LLM judges can partially substitute for human evaluation on objective tasks,<br>but should not be trusted for subjective tasks like creative writing.</strong></p>
+        <p style="font-size:1.15rem; text-align:center;"><strong>LLM judges can partially substitute for human evaluation on objective tasks,<br>but should not be trusted for subjective tasks.</strong></p>
       </div>
     </div>
     <p class="dim" style="margin-top:2rem; font-size:0.95rem;">Thank you — Questions?</p>
@@ -699,7 +632,6 @@
     if (e.clientX > window.innerWidth * 0.3) next(); else prev();
   });
 
-  // Touch support
   let touchX = 0;
   document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; });
   document.addEventListener('touchend', e => {
