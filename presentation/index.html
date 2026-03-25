@@ -525,31 +525,38 @@
 <!-- ==================== SLIDE 12: Our Results — Battle-Level Agreement ==================== -->
 <div class="slide" id="s12">
   <h2>Our Results: Battle-Level LLM Judge vs Human Agreement</h2>
-  <p class="dim" style="margin-bottom:0.5rem;">We ran GPT-4o-mini as judge on 800 Arena battles (100 per category) and compared with human votes.</p>
+  <p class="dim" style="margin-bottom:0.5rem;">GPT-4o-mini judged 800 Arena battles (100 per category). Raw agreement rate = does the LLM judge pick the same winner as the human?</p>
 
   <div class="grid-2">
     <div>
       <div class="fig-container">
-        <img src="figures/llm_judge_agreement.png" alt="Agreement by category" style="max-height:45vh;">
+        <img src="figures/llm_judge_agreement_raw.png" alt="Raw agreement by category" style="max-height:42vh;">
       </div>
     </div>
     <div>
-      <div class="card">
-        <h3 style="color:var(--text);">Key Findings</h3>
-        <p style="font-size:0.95rem;"><span class="green">Highest agreement:</span> Information Seeking (78.9%) and Mathematics (76.4%) — factual, objective tasks where correctness is clear.</p>
-        <p style="font-size:0.95rem; margin-top:0.5rem;"><span class="red">Lowest agreement:</span> Creative Writing (58.1%) — subjective tasks where "better" is ambiguous.</p>
-        <p style="font-size:0.95rem; margin-top:0.5rem;"><span class="yellow">Overall:</span> 49.2% raw agreement, but 69.5% excluding ties — because the LLM judge almost never says "Tie" while humans say Tie 32% of the time.</p>
-      </div>
-      <div class="highlight-box" style="margin-top:0.5rem;">
-        <p style="font-size:0.95rem;"><strong>The pattern:</strong> LLM judges agree with humans more on <span class="green">objective tasks</span> (info seeking, math, coding) and less on <span class="red">subjective tasks</span> (creative writing, role-playing).</p>
-      </div>
+      <table style="font-size:0.9rem;">
+        <tr><th>Category</th><th>n</th><th>Agreement</th><th>Interpretation</th></tr>
+        <tr><td><span class="tag tag-green">Mathematics</span></td><td>100</td><td class="green">56%</td><td class="small">Objective, verifiable</td></tr>
+        <tr><td><span class="tag tag-green">Info Seeking</span></td><td>100</td><td class="green">56%</td><td class="small">Factual, clear answers</td></tr>
+        <tr><td><span class="tag tag-blue">Reasoning</span></td><td>100</td><td>53%</td><td class="small">Partially objective</td></tr>
+        <tr><td><span class="tag tag-blue">Summarization</span></td><td>100</td><td>52%</td><td class="small">Accuracy + style</td></tr>
+        <tr><td><span class="tag tag-blue">Coding</span></td><td>100</td><td>50%</td><td class="small">Code correctness</td></tr>
+        <tr><td><span class="tag tag-red">Role-Playing</span></td><td>100</td><td class="yellow">47%</td><td class="small">Subjective, persona</td></tr>
+        <tr><td><span class="tag tag-red">Translation</span></td><td>100</td><td class="yellow">43%</td><td class="small">Cross-lingual</td></tr>
+        <tr><td><span class="tag tag-red">Creative Writing</span></td><td>100</td><td class="red">37%</td><td class="small">Highly subjective</td></tr>
+        <tr style="border-top:2px solid var(--surface3);"><td><strong>Overall</strong></td><td>800</td><td><strong>49.2%</strong></td><td class="small dim">3-way random = 33%</td></tr>
+      </table>
     </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:0.5rem;">
+    <p><strong>Pattern:</strong> LLM judges agree with humans more on <span class="green">objective tasks</span> (math 56%, info seeking 56%) and least on <span class="red">subjective tasks</span> (creative writing 37%). Overall 49% includes ties — humans say "Tie" 32% of the time, but the LLM judge almost never does (1.6%).</p>
   </div>
 </div>
 
 <!-- ==================== SLIDE 13: Confusion Matrix ==================== -->
 <div class="slide" id="s13">
-  <h2>Diagnosis: Why Raw Agreement Is Low</h2>
+  <h2>Diagnosis: The Tie Problem</h2>
 
   <div class="grid-2">
     <div>
@@ -565,93 +572,17 @@
   </div>
 
   <div class="card" style="margin-top:0.8rem;">
-    <h3 style="color:var(--text);">The Tie Problem</h3>
     <div class="grid-3">
       <div>
-        <p class="small"><span class="green">Human voters</span> say "Tie" <strong>31.8%</strong> of the time (254/800 battles). Many battles are genuinely close.</p>
+        <p class="small"><span class="green">Human voters</span> say "Tie" <strong>31.8%</strong> of the time (254/800). Many battles are genuinely close — both responses are comparable.</p>
       </div>
       <div>
-        <p class="small"><span class="accent2">LLM judge</span> says "Tie" only <strong>1.6%</strong> of the time (13/800). It almost always picks a winner — even when humans couldn't decide.</p>
+        <p class="small"><span class="accent2">LLM judge</span> says "Tie" only <strong>1.6%</strong> of the time (13/800). It almost always picks a winner, even when humans couldn't decide.</p>
       </div>
       <div>
-        <p class="small"><span class="yellow">Implication:</span> The LLM judge is <strong>overconfident</strong>. When humans tie, the judge's forced choice is essentially random — dragging down agreement.</p>
+        <p class="small"><span class="yellow">Implication:</span> The LLM judge is <strong>overconfident</strong>. On the 254 human-tie battles, the judge's forced choice is essentially a coin flip — dragging down raw agreement.</p>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 14: Per-Category Detail ==================== -->
-<div class="slide" id="s14">
-  <h2>Per-Category Breakdown: Where Does the Judge Fail?</h2>
-
-  <table style="font-size:0.95rem;">
-    <tr>
-      <th>Category</th>
-      <th>n</th>
-      <th>Raw Agreement</th>
-      <th>Agreement (excl. ties)</th>
-      <th>Interpretation</th>
-    </tr>
-    <tr>
-      <td><span class="tag tag-green">Information Seeking</span></td>
-      <td>100</td>
-      <td>56.0%</td>
-      <td class="green">78.9%</td>
-      <td class="small">Factual questions — clear right/wrong answers</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-green">Mathematics</span></td>
-      <td>100</td>
-      <td>56.0%</td>
-      <td class="green">76.4%</td>
-      <td class="small">Objective correctness, verifiable solutions</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-green">Coding &amp; Debugging</span></td>
-      <td>100</td>
-      <td>50.0%</td>
-      <td class="green">72.7%</td>
-      <td class="small">Code correctness is mostly objective</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-blue">Reasoning</span></td>
-      <td>100</td>
-      <td>53.0%</td>
-      <td>71.6%</td>
-      <td class="small">Logical arguments — partially objective</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-blue">Summarization</span></td>
-      <td>100</td>
-      <td>52.0%</td>
-      <td>70.3%</td>
-      <td class="small">Moderate — accuracy matters but style varies</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-red">Role-Playing</span></td>
-      <td>100</td>
-      <td>47.0%</td>
-      <td class="yellow">66.7%</td>
-      <td class="small">Subjective — depends on persona, creativity</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-red">Translation</span></td>
-      <td>100</td>
-      <td>43.0%</td>
-      <td class="yellow">66.1%</td>
-      <td class="small">Requires cross-lingual competence</td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-red">Creative Writing</span></td>
-      <td>100</td>
-      <td>37.0%</td>
-      <td class="red">58.1%</td>
-      <td class="small">Highly subjective — "better" is personal taste</td>
-    </tr>
-  </table>
-
-  <div class="highlight-box" style="margin-top:1rem;">
-    <p><strong>Takeaway:</strong> The LLM judge is a reasonable proxy for human preference on objective tasks (70-79% agreement), but <span class="red">unreliable for subjective tasks</span> like creative writing (58% — barely above random).</p>
   </div>
 </div>
 
@@ -705,7 +636,7 @@
         <p style="font-size:1.1rem;"><span class="green">Finding 1:</span> The reported r = 0.95 correlation is based on 14 model-level aggregate points — it masks category-level variation.</p>
       </div>
       <div class="card" style="margin-bottom:1rem;">
-        <p style="font-size:1.1rem;"><span class="yellow">Finding 2:</span> At the individual battle level, LLM-human agreement ranges from <span class="green">79%</span> (information seeking) to <span class="red">58%</span> (creative writing).</p>
+        <p style="font-size:1.1rem;"><span class="yellow">Finding 2:</span> At the individual battle level, raw LLM-human agreement ranges from <span class="green">56%</span> (math, info seeking) to <span class="red">37%</span> (creative writing) — overall 49.2%.</p>
       </div>
       <div class="card" style="margin-bottom:1rem;">
         <p style="font-size:1.1rem;"><span class="accent2">Finding 3:</span> The LLM judge is overconfident — it says "Tie" 1.6% vs humans' 31.8%, suggesting it forces decisions on ambiguous battles.</p>
