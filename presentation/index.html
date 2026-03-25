@@ -35,720 +35,747 @@
     user-select: none;
   }
 
-  /* ===== SLIDE ENGINE ===== */
-  .deck {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-  }
+  .deck { position: relative; width: 100vw; height: 100vh; }
 
   .slide {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 4vh 7vw;
-    opacity: 0;
-    pointer-events: none;
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 4vh 6vw;
+    opacity: 0; pointer-events: none;
     transform: translateX(60px);
     transition: opacity 0.5s ease, transform 0.5s ease;
   }
+  .slide.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
+  .slide.exit-left { opacity: 0; transform: translateX(-60px); }
 
-  .slide.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(0);
-  }
-
-  .slide.exit-left {
-    opacity: 0;
-    transform: translateX(-60px);
-  }
-
-  /* ===== FRAGMENTS (click-to-reveal) ===== */
-  .frag {
-    opacity: 0;
-    transform: translateY(25px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
-  }
-
-  .frag.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .frag-left {
-    opacity: 0;
-    transform: translateX(-50px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
-  }
-  .frag-left.show { opacity: 1; transform: translateX(0); }
-
-  .frag-right {
-    opacity: 0;
-    transform: translateX(50px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
-  }
-  .frag-right.show { opacity: 1; transform: translateX(0); }
-
-  .frag-pop {
-    opacity: 0;
-    transform: scale(0.7);
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  .frag { opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; }
+  .frag.show { opacity: 1; transform: translateY(0); }
+  .frag-pop { opacity: 0; transform: scale(0.7); transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
   .frag-pop.show { opacity: 1; transform: scale(1); }
 
-  .frag-fade {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  .frag-fade.show { opacity: 1; }
+  .progress { position: fixed; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; z-index: 200; }
+  .counter { position: fixed; bottom: 12px; right: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim); z-index: 200; }
+  .hint { position: fixed; bottom: 12px; left: 20px; font-size: 0.7rem; color: var(--text-dim); opacity: 0.5; z-index: 200; }
 
-  /* ===== PROGRESS BAR ===== */
-  .progress {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: width 0.4s ease;
-    z-index: 200;
-  }
+  h1 { font-size: 3.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5rem; }
+  h2 { font-size: 2rem; font-weight: 700; margin-bottom: 1.2rem; letter-spacing: -0.02em; }
+  h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.8rem; color: var(--accent); }
+  p, li { font-size: 1.05rem; line-height: 1.65; color: var(--text); }
+  .dim { color: var(--text-dim); }
+  .accent { color: var(--accent); font-weight: 600; }
+  .accent2 { color: var(--accent2); font-weight: 600; }
+  .green { color: var(--green); font-weight: 600; }
+  .red { color: var(--red); font-weight: 600; }
+  .yellow { color: var(--yellow); font-weight: 600; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+  .small { font-size: 0.85rem; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin: 2px; }
+  .tag-blue { background: rgba(79,140,255,0.15); color: var(--accent); border: 1px solid rgba(79,140,255,0.3); }
+  .tag-purple { background: rgba(167,139,250,0.15); color: var(--accent2); border: 1px solid rgba(167,139,250,0.3); }
+  .tag-green { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .tag-red { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
 
-  /* ===== SLIDE COUNTER ===== */
-  .counter {
-    position: fixed;
-    bottom: 12px;
-    right: 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    z-index: 200;
-  }
-
-  /* ===== CONTROLS HINT ===== */
-  .hint {
-    position: fixed;
-    bottom: 12px;
-    left: 20px;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    opacity: 0.5;
-    z-index: 200;
-  }
-
-  /* ===== TYPOGRAPHY ===== */
-  h1 {
-    font-size: 3.5rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin-bottom: 0.6rem;
-  }
-
-  h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  h3 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 0.6rem;
-    color: var(--accent);
-  }
-
-  p { margin-bottom: 0.8rem; font-size: 1.05rem; line-height: 1.6; }
-
-  strong { color: #fff; }
-
-  em { color: var(--text-dim); }
-
-  /* ===== LAYOUTS ===== */
-  .center { text-align: center; display: flex; flex-direction: column; align-items: center; }
-
-  .cols { display: grid; gap: 2rem; }
-  .cols-2 { grid-template-columns: 1fr 1fr; }
-  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .cols-60-40 { grid-template-columns: 3fr 2fr; }
-  .cols-40-60 { grid-template-columns: 2fr 3fr; }
-
-  /* ===== CARDS ===== */
   .card {
     background: var(--surface);
-    border: 1px solid var(--surface2);
-    border-radius: 12px;
-    padding: 1.5rem;
-  }
-
-  .card-glow-blue { border-color: rgba(79,140,255,0.3); box-shadow: 0 0 30px rgba(79,140,255,0.08); }
-  .card-glow-green { border-color: rgba(52,211,153,0.3); box-shadow: 0 0 30px rgba(52,211,153,0.08); }
-  .card-glow-red { border-color: rgba(248,113,113,0.3); box-shadow: 0 0 30px rgba(248,113,113,0.08); }
-  .card-glow-yellow { border-color: rgba(251,191,36,0.3); box-shadow: 0 0 30px rgba(251,191,36,0.08); }
-  .card-glow-purple { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 30px rgba(167,139,250,0.08); }
-
-  /* ===== RQ BOX ===== */
-  .rq {
-    background: linear-gradient(135deg, rgba(79,140,255,0.12), rgba(167,139,250,0.12));
-    border: 2px solid var(--accent);
-    border-radius: 16px;
-    padding: 2rem 3rem;
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: 500;
-    max-width: 800px;
-    line-height: 1.5;
-  }
-
-  /* ===== METRIC ===== */
-  .metric {
-    text-align: center;
-    padding: 1.2rem;
-  }
-  .metric .val {
-    font-size: 3rem;
-    font-weight: 800;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: -0.02em;
-  }
-  .metric .lbl {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-top: 0.2rem;
-  }
-  .green { color: var(--green); }
-  .red { color: var(--red); }
-  .yellow { color: var(--yellow); }
-  .blue { color: var(--accent); }
-
-  /* ===== TAGS ===== */
-  .tag {
-    display: inline-block;
-    padding: 0.25rem 0.8rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    margin: 0.2rem;
-  }
-  .tag-b { background: rgba(79,140,255,0.15); color: var(--accent); }
-  .tag-g { background: rgba(52,211,153,0.15); color: var(--green); }
-  .tag-r { background: rgba(248,113,113,0.15); color: var(--red); }
-  .tag-y { background: rgba(251,191,36,0.15); color: var(--yellow); }
-
-  /* ===== TABLES ===== */
-  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th { background: var(--surface2); padding: 0.6rem 0.8rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
-  td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--surface2); }
-  .row-g { background: rgba(52,211,153,0.06); }
-  .row-r { background: rgba(248,113,113,0.06); }
-
-  /* ===== FIGURES ===== */
-  .fig { text-align: center; }
-  .fig img { max-width: 100%; max-height: 58vh; border-radius: 8px; border: 1px solid var(--surface2); background: #fff; padding: 4px; }
-  .fig figcaption { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; font-style: italic; }
-
-  /* ===== LISTS ===== */
-  ul, ol { padding-left: 1.4rem; margin: 0.5rem 0; }
-  li { margin-bottom: 0.4rem; font-size: 1rem; line-height: 1.5; }
-
-  /* ===== PIPELINE ===== */
-  .pipe { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
-  .pipe-box {
-    background: var(--surface);
     border: 1px solid var(--surface3);
-    border-radius: 10px;
-    padding: 0.8rem 1.2rem;
-    text-align: center;
-    min-width: 130px;
-    font-size: 0.9rem;
-  }
-  .pipe-box strong { display: block; font-size: 1rem; }
-  .pipe-box small { color: var(--text-dim); font-size: 0.75rem; }
-  .pipe-arr { font-size: 1.4rem; color: var(--accent); }
-
-  /* ===== TITLE SLIDE ===== */
-  .slide-hero {
-    background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 50%, #0a1628 100%);
-  }
-  .slide-hero::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle at 30% 40%, rgba(79,140,255,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 70% 60%, rgba(167,139,250,0.06) 0%, transparent 50%);
-    pointer-events: none;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin: 0.5rem 0;
   }
 
-  .subtitle { font-size: 1.3rem; font-weight: 300; color: var(--text-dim); margin-bottom: 2.5rem; line-height: 1.5; }
-  .author-info { font-size: 0.95rem; color: var(--text-dim); }
-  .author-info span { opacity: 0.6; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
 
-  /* ===== SECTION BREAK ===== */
-  .slide-section {
+  .example-box {
     background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.2rem;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
   }
-  .slide-section h2 { font-size: 3rem; margin-bottom: 0.5rem; }
-  .slide-section p { color: var(--text-dim); font-size: 1.2rem; }
 
-  /* ===== CHECKMARKS ===== */
-  .check { color: var(--green); }
+  .example-box.human { border-left-color: var(--green); }
+  .example-box.llm { border-left-color: var(--accent2); }
+  .example-box.response { border-left-color: var(--yellow); background: var(--surface2); }
+
+  .example-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th { background: var(--surface2); padding: 0.6rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid var(--surface3); }
+  td { padding: 0.5rem 1rem; border-bottom: 1px solid var(--surface3); }
+  tr:hover td { background: rgba(79,140,255,0.05); }
+
+  .big-number { font-size: 4rem; font-weight: 800; line-height: 1; }
+  .big-label { font-size: 1rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  .fig-container { text-align: center; margin: 0.8rem 0; }
+  .fig-container img { max-width: 100%; max-height: 50vh; border-radius: 8px; border: 1px solid var(--surface3); }
+
+  .arrow-flow {
+    display: flex; align-items: center; gap: 0.8rem;
+    font-size: 1rem; flex-wrap: wrap;
+  }
+  .arrow-flow .step {
+    background: var(--surface); border: 1px solid var(--surface3);
+    border-radius: 8px; padding: 0.6rem 1rem;
+  }
+  .arrow-flow .arrow { color: var(--accent); font-size: 1.5rem; }
+
+  .highlight-box {
+    background: rgba(79,140,255,0.08);
+    border: 1px solid rgba(79,140,255,0.25);
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    margin: 0.5rem 0;
+  }
+
+  .highlight-box.warn {
+    background: rgba(251,191,36,0.08);
+    border-color: rgba(251,191,36,0.25);
+  }
+
+  .highlight-box.good {
+    background: rgba(52,211,153,0.08);
+    border-color: rgba(52,211,153,0.25);
+  }
+
+  ul { padding-left: 1.3rem; }
+  li { margin-bottom: 0.4rem; }
 </style>
 </head>
 <body>
+<div class="deck">
 
-<div class="progress" id="progress"></div>
-<div class="counter" id="counter"></div>
-<div class="hint">Arrow keys / click to navigate</div>
-
-<div class="deck" id="deck">
-
-<!-- ==================== SLIDE 1: TITLE ==================== -->
-<div class="slide slide-hero" data-steps="3">
-  <div class="center">
-    <h1 class="frag" data-step="0">Can LLM Judgment Capture<br>Human Preference?</h1>
-    <p class="subtitle frag" data-step="1">An Alignment Study Between Automated and Human<br>Evaluation of LLM Task Performance</p>
-    <div class="frag" data-step="2">
-      <p class="author-info">Yifan Liu &middot; 1007341681<br><span>Mechanical and Industrial Engineering &middot; University of Toronto<br>MIE1512 &middot; Prof. Mariano P. Consens</span></p>
+<!-- ==================== SLIDE 1: Title ==================== -->
+<div class="slide" id="s1">
+  <div>
+    <p class="dim" style="font-size:1rem; margin-bottom:1rem;">MIE1512 — Data Infrastructure &amp; Analytics</p>
+    <h1>Can LLM Judgment Capture<br>Human Preference?</h1>
+    <p style="font-size:1.4rem; color:var(--text-dim); margin: 0.8rem 0 2rem;">
+      An Alignment Study Between Automated and<br>Human Evaluation of LLM Task Performance
+    </p>
+    <div style="margin-top:1rem;">
+      <p style="font-size:1.1rem;">Yifan Liu &nbsp;<span class="dim">|</span>&nbsp; <span class="dim">1007341681</span></p>
+      <p class="dim" style="font-size:0.95rem; margin-top:0.3rem;">Department of Mechanical and Industrial Engineering, University of Toronto</p>
+      <p class="dim" style="font-size:0.95rem;">Instructor: Prof. Mariano P. Consens</p>
+      <p class="dim" style="font-size:0.9rem; margin-top:0.5rem;">March 2026</p>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 2: PROBLEM ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">The Research Problem</h2>
-  <p class="frag" data-step="1">Evaluating LLMs is expensive. <strong>Human evaluation</strong> (crowdsourced voting) is the gold standard &mdash; but slow, costly, and hard to scale. A popular alternative: use a <strong>strong LLM as a judge</strong> to score other LLMs automatically.</p>
-  <div class="rq frag-pop" data-step="2" style="margin:1.5rem auto;">
-    Can an LLM judge reliably capture human preferences<br>when evaluating LLM task performance?
-  </div>
-  <p class="frag" data-step="3">Existing work reports high overall agreement (r &ge; 0.94). <strong>But is this agreement uniform across task types?</strong> Or does the LLM judge agree with humans on some tasks and fail on others?</p>
-</div>
+<!-- ==================== SLIDE 2: Motivation ==================== -->
+<div class="slide" id="s2">
+  <h2>Motivation: Evaluating LLM Output Quality</h2>
 
-<!-- ==================== SLIDE 3: MOTIVATION ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Why This Matters</h2>
-  <div class="cols cols-3">
-    <div class="card card-glow-blue frag-left" data-step="1">
-      <h3>Replacing Human Evaluation</h3>
-      <p>If LLM judges fail on certain task types, using them as a blanket replacement for human evaluation is unreliable.</p>
-    </div>
-    <div class="card card-glow-purple frag" data-step="2">
-      <h3>Model Development</h3>
-      <p>RLHF and DPO use automated scores as training signals. If the judge disagrees with humans on math or translation, models are optimized for the wrong objective.</p>
-    </div>
-    <div class="card card-glow-yellow frag-right" data-step="3">
-      <h3>Model Selection</h3>
-      <p>Practitioners choose LLMs based on leaderboards. If the leaderboard doesn't match human preferences for their use case, they may pick the wrong model.</p>
+  <div class="example-box" style="margin-bottom:0.8rem;">
+    <div class="example-label dim">Example: User asks an LLM</div>
+    <p><span class="accent">User:</span> "Write a Python function that checks if a string is a valid email address."</p>
+    <p style="margin-top:0.4rem;"><span class="accent2">LLM Response:</span> <span class="mono" style="font-size:0.85rem;">def is_valid_email(s): return bool(re.match(r'^[\w.-]+@[\w.-]+\.\w+$', s))</span></p>
+    <p class="dim small" style="margin-top:0.3rem;">Is this response good? Does it handle edge cases? Is it what the user wanted?</p>
+  </div>
+
+  <div class="frag">
+    <div class="card">
+      <p><span class="green">Gold standard:</span> Human evaluation via crowdsourcing — real users compare two LLM responses and vote for the one they prefer. But this is <span class="red">slow, expensive, and hard to scale</span> (collecting 57K votes took over a year).</p>
     </div>
   </div>
-</div>
 
-<!-- ==================== SLIDE 4: SECTION - METHOD ==================== -->
-<div class="slide slide-section center" data-steps="2">
-  <h2 class="frag-pop" data-step="0">Method: LLM-as-Judge</h2>
-  <p class="frag" data-step="1">Using a strong LLM to automatically evaluate other models</p>
-</div>
-
-<!-- ==================== SLIDE 5: LLM-AS-JUDGE ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">LLM-as-Judge: How It Works</h2>
-  <p class="frag" data-step="1"><strong>WildBench</strong> (Lin et al., ICLR 2025 Spotlight) uses GPT-4-turbo to evaluate other models' outputs on 1,024 real-user tasks from WildChat:</p>
-  <div class="frag" data-step="2" style="margin-top:1rem;">
-    <ol>
-      <li><strong>Input</strong>: A real-user prompt (from WildChat) + the target model's response</li>
-      <li><strong>Checklist generation</strong>: GPT-4-Turbo and Claude-3-Opus jointly generate a <strong>task-specific checklist</strong> of 5&ndash;10 verifiable questions tailored to the prompt (e.g., "Does the code handle edge cases?")</li>
-      <li><strong>Evaluation</strong>: The judge evaluates the response against the checklist using <strong>Chain-of-Thought reasoning</strong>, producing a structured analysis of strengths and weaknesses before arriving at a final judgment</li>
-    </ol>
-  </div>
-  <div class="card card-glow-green frag-pop" data-step="3" style="margin-top:1rem; text-align:center;">
-    <strong>Why checklists?</strong> Without checklists, WB-Score achieves r = 0.905 with human Elo. <strong>With checklists, it rises to r = 0.925</strong> (ablation study). Checklists reduce subjectivity by grounding evaluation in concrete, task-specific criteria.
-  </div>
-</div>
-
-<!-- ==================== SLIDE 6: TWO METRICS ==================== -->
-<div class="slide" data-steps="3">
-  <h2 class="frag" data-step="0">Two Metrics: WB-Score and WB-Reward</h2>
-  <div class="cols cols-2" style="margin-top:0.5rem;">
-    <div class="card card-glow-blue frag-left" data-step="1">
-      <h3>WB-Score (Pointwise)</h3>
-      <p>Judge rates <strong>one response</strong> on a 1&ndash;10 scale against the checklist:</p>
-      <ul style="font-size:0.85rem;">
-        <li><span class="red">1&ndash;2</span>: Makes no sense at all</li>
-        <li><span class="red">3&ndash;4</span>: Poor, doesn't help user</li>
-        <li><span class="yellow">5&ndash;6</span>: Fair but has issues (errors, hallucinations)</li>
-        <li><span class="green">7&ndash;8</span>: Good but could improve</li>
-        <li><span class="green">9&ndash;10</span>: Perfect, fully solves the problem</li>
-      </ul>
-      <p style="font-size:0.8rem; color:var(--text-dim);">Rescaled: S' = (S &minus; 5) &times; 2 &middot; Cost: ~$5, 10 min/model</p>
-      <p style="font-size:0.85rem;">Achieves <strong>r = 0.955</strong> with Arena Elo (top models)</p>
-    </div>
-    <div class="card card-glow-purple frag-right" data-step="1">
-      <h3 style="color:var(--accent2);">WB-Reward (Pairwise)</h3>
-      <p>Judge <strong>compares</strong> test model vs. a baseline using the checklist:</p>
-      <ul style="font-size:0.85rem;">
-        <li>Much better: <span class="green">+1</span></li>
-        <li>Slightly better: <span class="green">+0.5</span></li>
-        <li>Tie: 0</li>
-        <li>Slightly worse: <span class="red">&minus;0.5</span></li>
-        <li>Much worse: <span class="red">&minus;1</span></li>
-      </ul>
-      <p style="font-size:0.8rem; color:var(--text-dim);"><strong>3 baselines</strong> averaged: GPT-4-Turbo, Claude-3-Haiku, Llama-2-70B-chat</p>
-      <p style="font-size:0.8rem; color:var(--text-dim);"><strong>Length penalty</strong>: if winner &gt;K chars longer, slight win &rarr; tie (K=500)</p>
-      <p style="font-size:0.85rem;">Achieves <strong>r = 0.984</strong> with Arena Elo (top models)</p>
+  <div class="frag">
+    <div class="card">
+      <p><span class="accent">Alternative:</span> Use a strong LLM (e.g., GPT-4) as an automated judge to score other LLMs' outputs. Recent benchmarks report <span class="yellow">Pearson r = 0.95</span> correlation with human evaluation at the aggregate level.</p>
     </div>
   </div>
-  <div class="card frag-pop" data-step="2" style="text-align:center; margin-top:0.8rem;">
-    Both metrics use the <strong>same checklist</strong> per task. WB-Score is cheaper and faster; WB-Reward is more robust via multi-baseline comparison.
-  </div>
-</div>
 
-<!-- ==================== SLIDE 6b: CHECKLIST EXAMPLE ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Checklist Example</h2>
-  <div class="card card-glow-yellow frag" data-step="1" style="margin-bottom:1rem;">
-    <h3 style="color:var(--yellow);">Example Prompt (G20 Essay Task)</h3>
-    <p style="font-style:italic; font-size:0.9rem;">"Write an essay on the impact of the G20 summit on the global economy... it has to have more than 1200 words. Write it beautiful and poetic. Use extensive vocabulary... Use some ancient Indian historical references."</p>
-  </div>
-  <div class="frag" data-step="2">
-    <h3>Generated Checklist (5&ndash;10 questions per task):</h3>
-    <ol style="font-size:0.95rem;">
-      <li>Does the essay contain more than 1200 words as requested?</li>
-      <li>Is the language beautiful and poetic, with extensive vocabulary?</li>
-      <li>Does it include factual data on the G20's economic impact?</li>
-      <li>Are there references to young people shaping the world?</li>
-      <li>Does it include ancient Indian historical references?</li>
-      <li>Is the essay structured in a clear and logical manner?</li>
-    </ol>
-  </div>
-  <p class="frag" data-step="3" style="color:var(--text-dim); font-size:0.85rem; margin-top:0.8rem;">The judge evaluates <strong>every model's response</strong> against these same questions, ensuring consistent, interpretable, and comparable scoring. Checklists are generated once per task and reused for all models.</p>
-</div>
-
-<!-- ==================== SLIDE 7: SECTION - DATASET ==================== -->
-<div class="slide slide-section center" data-steps="2">
-  <h2 class="frag-pop" data-step="0">Dataset: Chatbot Arena</h2>
-  <p class="frag" data-step="1">The largest open human preference dataset for LLM evaluation</p>
-</div>
-
-<!-- ==================== SLIDE 8: ARENA DATASET ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Chatbot Arena: Human Preference at Scale</h2>
-  <p style="font-size:0.8rem; color:var(--text-dim);" class="frag" data-step="0">Chiang et al., ICML 2024</p>
-  <div class="cols cols-60-40" style="margin-top:0.8rem;">
-    <div class="frag-left" data-step="1">
-      <ul>
-        <li>A user submits a prompt and sees responses from <strong>two anonymous LLMs</strong> side by side</li>
-        <li>The user votes for the response they prefer</li>
-        <li><strong>57,477 pairwise battles</strong> with full text, across 64 models</li>
-        <li>Supplemented by <strong>1.7M voting records</strong></li>
-        <li>Rankings via <strong>Bradley-Terry model</strong> &rarr; Elo ratings (same concept as chess)</li>
-      </ul>
-      <p class="frag" data-step="2" style="margin-top:0.8rem;">Widely considered the <strong>gold standard</strong> for alignment evaluation. This is our ground truth: <em>what do humans actually prefer?</em></p>
-    </div>
-    <div class="fig frag-right" data-step="1">
-      <img src="figures/arena_top20.png" alt="Arena Elo rankings">
-      <figcaption>Top 20 models by Elo (Bradley-Terry)</figcaption>
+  <div class="frag">
+    <div class="highlight-box warn">
+      <p><strong>But this r = 0.95 is computed over only 14 model-level data points.</strong> Every benchmark can tell GPT-4 from Llama-2 — the large inter-model gaps inflate correlation. <span class="accent">Does this agreement hold across all task types?</span></p>
     </div>
   </div>
-  <div class="card frag-pop" data-step="3" style="text-align:center; margin-top:0.8rem;">
-    Arena provides aggregate Elo but <strong>no task-category breakdown</strong>. We add one: classify each prompt via keyword heuristics into WildBench's 12 task types, then compute <strong>per-category human win rates</strong> for 12 overlapping models. All processed with PySpark (~1.8M records).
+</div>
+
+<!-- ==================== SLIDE 3: Research Question ==================== -->
+<div class="slide" id="s3">
+  <h2>Research Question</h2>
+  <div style="margin: 2rem 0;">
+    <div class="highlight-box" style="text-align:center; padding: 2.5rem 2rem;">
+      <p style="font-size:1.6rem; font-weight:700; line-height:1.5;">
+        Can an LLM judge's evaluation of LLM task performance<br>
+        align with human stated preferences<br>
+        <span class="accent">across different task categories?</span>
+      </p>
+    </div>
+  </div>
+  <div class="frag">
+    <div class="grid-3" style="margin-top:1.5rem;">
+      <div class="card" style="text-align:center;">
+        <p class="accent" style="font-weight:700;">LLM Judge</p>
+        <p class="small dim" style="margin-top:0.3rem;">GPT-4-turbo evaluates<br>LLM outputs via checklists</p>
+        <p class="small dim" style="margin-top:0.2rem;">(WildBench)</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <p class="green" style="font-weight:700;">Human Preference</p>
+        <p class="small dim" style="margin-top:0.3rem;">Real users vote on which<br>LLM response they prefer</p>
+        <p class="small dim" style="margin-top:0.2rem;">(Chatbot Arena)</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <p class="yellow" style="font-weight:700;">Task Categories</p>
+        <p class="small dim" style="margin-top:0.3rem;">Coding, Math, Writing,<br>Translation, Reasoning...</p>
+        <p class="small dim" style="margin-top:0.2rem;">(WildBench taxonomy)</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 9: SECTION - RESULTS ==================== -->
-<div class="slide slide-section center" data-steps="2">
-  <h2 class="frag-pop" data-step="0">Results</h2>
-  <p class="frag" data-step="1">What we found when comparing LLM judgment with human preference</p>
-</div>
+<!-- ==================== SLIDE 4: Method Background ==================== -->
+<div class="slide" id="s4">
+  <h2>Method Background: LLM-as-Judge</h2>
+  <p style="margin-bottom:1rem;">Instead of expensive human evaluation, use a powerful LLM to judge other LLMs' outputs automatically.</p>
 
-<!-- ==================== SLIDE 10: OVERALL CORRELATION ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Result 1: Overall &mdash; The LLM Judge Agrees</h2>
-  <div class="cols cols-2">
+  <div class="grid-2">
     <div>
-      <div class="cols cols-2" style="margin-bottom:1rem;">
-        <div class="card card-glow-green metric frag-pop" data-step="1">
-          <div class="val green">0.954</div>
-          <div class="lbl">Pearson r &middot; Elo vs WB-Score</div>
-        </div>
-        <div class="card card-glow-green metric frag-pop" data-step="1">
-          <div class="val green">0.943</div>
-          <div class="lbl">Pearson r &middot; Elo vs WB-Reward</div>
-        </div>
+      <h3>How It Works</h3>
+      <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:0.5rem;">
+        <div class="step" style="width:100%;"><span class="accent">1.</span> Given a user prompt, generate a <strong>task-specific checklist</strong> (3-10 criteria)</div>
+        <div class="step" style="width:100%;"><span class="accent">2.</span> Feed the prompt + LLM response + checklist to <strong>GPT-4-turbo</strong></div>
+        <div class="step" style="width:100%;"><span class="accent">3.</span> GPT-4-turbo scores the response against each checklist item</div>
+        <div class="step" style="width:100%;"><span class="accent">4.</span> Aggregate into <strong>WB-Score</strong> (1-10) or <strong>WB-Reward</strong> (pairwise winner)</div>
       </div>
-      <div class="frag" data-step="2">
-        <table>
-          <thead><tr><th>Comparison</th><th>Pearson</th><th>Spearman</th></tr></thead>
-          <tbody>
-            <tr><td>Elo vs WB-Score</td><td><strong>0.954</strong></td><td>0.923</td></tr>
-            <tr><td>Elo vs WB-Reward</td><td><strong>0.943</strong></td><td>0.895</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="frag" data-step="3"><em>High overall agreement (p &lt; 10<sup>-5</sup>). But this is partly driven by large inter-model gaps &mdash; every benchmark can tell GPT-4 from Llama-2. The real test is per category&hellip;</em></p>
-    </div>
-    <div class="fig frag-right" data-step="2">
-      <img src="figures/cross_benchmark.png" alt="Scatter plots">
-      <figcaption>Arena Elo vs WildBench scores (12 models)</figcaption>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 11: PER-CATEGORY ==================== -->
-<div class="slide" data-steps="4">
-  <h2 class="frag" data-step="0">Result 2: Per Category &mdash; Agreement Varies Dramatically</h2>
-  <div class="cols cols-2">
-    <div class="frag-left" data-step="1">
-      <table>
-        <thead><tr><th>Task Category</th><th>N</th><th>vs WB-Score</th><th>vs WB-Reward</th></tr></thead>
-        <tbody>
-          <tr class="row-g"><td><span class="tag tag-g">Reasoning</span></td><td>11</td><td><strong>0.749</strong></td><td>0.693</td></tr>
-          <tr class="row-g"><td><span class="tag tag-g">Creative Writing</span></td><td>11</td><td>0.713</td><td>0.649</td></tr>
-          <tr><td><span class="tag tag-b">Coding & Debugging</span></td><td>12</td><td>0.689</td><td>0.661</td></tr>
-          <tr><td><span class="tag tag-b">Role-Playing</span></td><td>11</td><td>0.689</td><td>0.642</td></tr>
-          <tr class="row-r"><td><span class="tag tag-y">Info Seeking</span></td><td>12</td><td>0.595</td><td>0.554</td></tr>
-          <tr class="row-r"><td><span class="tag tag-y">Mathematics</span></td><td>11</td><td>0.558</td><td>0.581</td></tr>
-          <tr class="row-r"><td><span class="tag tag-r">Translation</span></td><td>5</td><td><strong>0.146</strong></td><td>0.144</td></tr>
-          <tr style="border-top:2px solid var(--surface3);"><td><em>Overall</em></td><td>12</td><td><em>0.954</em></td><td><em>0.943</em></td></tr>
-        </tbody>
-      </table>
     </div>
     <div>
-      <div class="fig frag-right" data-step="2">
-        <img src="figures/per_category_corr.png" alt="Bar chart">
-        <figcaption>Correlation by task category</figcaption>
+      <h3>Why Checklists?</h3>
+      <div class="card">
+        <p style="font-size:0.95rem;">Without a checklist, the judge LLM might focus on surface features (fluency, length). The checklist forces it to evaluate <strong>task-specific requirements</strong>:</p>
+        <div style="margin-top:0.6rem;">
+          <span class="tag tag-blue">Correctness</span>
+          <span class="tag tag-blue">Completeness</span>
+          <span class="tag tag-blue">Edge cases</span>
+          <span class="tag tag-blue">Efficiency</span>
+          <span class="tag tag-blue">Readability</span>
+        </div>
       </div>
-      <div class="card card-glow-red frag-pop" data-step="3">
-        The <strong>0.95 overall masks a range from 0.75 to 0.15</strong>. The LLM judge is a good proxy for reasoning but <strong>nearly uncorrelated</strong> with humans on translation.
+      <div class="card" style="margin-top:0.5rem;">
+        <p class="small dim"><strong>Paper:</strong> Lin et al., "WildBench: Benchmarking LLMs with Challenging Tasks from Real Users in the Wild," ICLR 2025 Spotlight</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 12: HEATMAP ==================== -->
-<div class="slide" data-steps="3">
-  <h2 class="frag" data-step="0">Result 3: Rankings Shift Across Categories</h2>
-  <div class="fig frag-pop" data-step="1">
-    <img src="figures/arena_heatmap.png" alt="Heatmap" style="max-height:52vh;">
-    <figcaption>Per-category human preference win rates (Arena 55K, top 15 models)</figcaption>
+<!-- ==================== SLIDE 5: WildBench Procedure ==================== -->
+<div class="slide" id="s5">
+  <h2>WildBench: Checklist-Based LLM Evaluation</h2>
+  <p class="dim" style="margin-bottom:0.8rem;">Uses GPT-4-turbo to evaluate other LLMs' performance on 1,024 real-user tasks from WildChat.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>Evaluation Procedure (Example)</h3>
+      <div class="example-box" style="font-size:0.85rem;">
+        <div class="example-label" style="color:var(--accent);">Step 1: User Prompt</div>
+        <p class="mono">"Write a Python function to check if a string is a valid email."</p>
+      </div>
+      <div class="example-box llm" style="font-size:0.85rem;">
+        <div class="example-label" style="color:var(--accent2);">Step 2: Auto-Generate Checklist</div>
+        <p>GPT-4-turbo creates criteria for this specific task:</p>
+        <ul class="small" style="margin-top:0.3rem;">
+          <li>Does it use proper regex pattern?</li>
+          <li>Does it handle edge cases (empty string, special chars)?</li>
+          <li>Does it return a boolean?</li>
+          <li>Is the code readable and well-structured?</li>
+        </ul>
+      </div>
+      <div class="example-box response" style="font-size:0.85rem;">
+        <div class="example-label" style="color:var(--yellow);">Step 3: Judge Scores the Response</div>
+        <p>GPT-4-turbo evaluates the LLM's response against each checklist item and assigns a score.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Two Scoring Modes</h3>
+      <div class="card">
+        <p><span class="accent">WB-Score</span> (Pointwise)</p>
+        <p class="small" style="margin-top:0.3rem;">Rate a single response on a <strong>1-10 scale</strong>.</p>
+        <p class="small dim" style="margin-top:0.2rem;">e.g., "This email validator scores 7/10 — correct regex but no edge case handling."</p>
+      </div>
+      <div class="card">
+        <p><span class="accent2">WB-Reward</span> (Pairwise)</p>
+        <p class="small" style="margin-top:0.3rem;">Compare two responses against 3 reference models. Five outcomes:</p>
+        <div style="margin-top:0.4rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
+          <span class="tag tag-green">Much Better</span>
+          <span class="tag tag-green">Slightly Better</span>
+          <span class="tag tag-blue">Tie</span>
+          <span class="tag tag-red">Slightly Worse</span>
+          <span class="tag tag-red">Much Worse</span>
+        </div>
+      </div>
+      <div class="card">
+        <p><span class="yellow">Task Categories</span></p>
+        <p class="small" style="margin-top:0.3rem;">All 1,024 tasks are classified into 12 categories:</p>
+        <div style="margin-top:0.4rem; display:flex; gap:0.3rem; flex-wrap:wrap;">
+          <span class="tag tag-purple">Coding</span>
+          <span class="tag tag-purple">Math</span>
+          <span class="tag tag-purple">Creative Writing</span>
+          <span class="tag tag-purple">Reasoning</span>
+          <span class="tag tag-purple">Translation</span>
+          <span class="tag tag-purple">Info Seeking</span>
+          <span class="tag tag-purple">Role-Playing</span>
+          <span class="tag tag-purple">...</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <p class="frag" data-step="2" style="text-align:center; margin-top:0.5rem;">The overall #1 model (gpt-4-1106-preview) is <strong>not #1 in most categories</strong>. Performance varies substantially by task type.</p>
 </div>
 
-<!-- ==================== SLIDE 13: CATEGORY LEADERS ==================== -->
-<div class="slide" data-steps="3">
-  <h2 class="frag" data-step="0">Category-Specific Leaders</h2>
-  <div class="frag" data-step="1">
+<!-- ==================== SLIDE 6: Scoring Example ==================== -->
+<div class="slide" id="s6">
+  <h2>Scoring Example: How WB-Score and WB-Reward Work</h2>
+
+  <div class="example-box" style="margin-bottom:0.6rem;">
+    <div class="example-label dim">User Prompt</div>
+    <p>"Write a Python function to check if a string is a valid email address."</p>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent">Model A</span> response:</p>
+        <p class="mono small">def is_valid(s):<br>&nbsp;&nbsp;return '@' in s</p>
+        <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
+          <p class="small dim">Checklist evaluation:</p>
+          <p class="small"><span class="red">&#x2717;</span> Proper regex? No, just checks '@'</p>
+          <p class="small"><span class="red">&#x2717;</span> Edge cases? No</p>
+          <p class="small"><span class="green">&#x2713;</span> Returns boolean? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Readable? Yes</p>
+          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="yellow">4 / 10</span></p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent2">Model B</span> response:</p>
+        <p class="mono small">import re<br>def is_valid(s):<br>&nbsp;&nbsp;return bool(re.match(<br>&nbsp;&nbsp;&nbsp;&nbsp;r'^[\w.-]+@[\w.-]+\.\w+$', s))</p>
+        <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
+          <p class="small dim">Checklist evaluation:</p>
+          <p class="small"><span class="green">&#x2713;</span> Proper regex? Yes</p>
+          <p class="small"><span class="yellow">~</span> Edge cases? Partial</p>
+          <p class="small"><span class="green">&#x2713;</span> Returns boolean? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Readable? Yes</p>
+          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="green">7 / 10</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frag">
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p><span class="accent2">WB-Reward (pairwise):</span> Model B is <span class="green">"Slightly Better"</span> than Model A. &nbsp;|&nbsp; <span class="dim">Both scores are generated entirely by GPT-4-turbo — no human involved.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: Chatbot Arena Dataset ==================== -->
+<div class="slide" id="s7">
+  <h2>Dataset: Chatbot Arena — Human Preference Benchmark</h2>
+  <p style="margin-bottom:0.8rem;">We apply the LLM judgment method to this large-scale <span class="green">human preference</span> dataset to test whether LLM judges agree with real humans.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>How Preferences Are Collected</h3>
+      <div class="arrow-flow" style="flex-direction:column; align-items:flex-start; gap:0.4rem;">
+        <div class="step" style="width:100%;"><span class="green">1.</span> A real user types any prompt they want</div>
+        <div class="step" style="width:100%;"><span class="green">2.</span> Two <strong>anonymous</strong> LLMs generate responses side by side</div>
+        <div class="step" style="width:100%;"><span class="green">3.</span> The user reads both and clicks: <strong>"A is better"</strong>, <strong>"B is better"</strong>, or <strong>"Tie"</strong></div>
+        <div class="step" style="width:100%;"><span class="green">4.</span> Model identities are revealed after voting — no bias</div>
+      </div>
+      <div class="card" style="margin-top:0.5rem;">
+        <p class="small dim"><strong>Paper:</strong> Chiang et al., "Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference," ICML 2024</p>
+      </div>
+    </div>
+    <div>
+      <h3>Scale of the Dataset</h3>
+      <div class="card" style="text-align:center; padding:1rem;">
+        <p class="big-number accent">1.7M+</p>
+        <p class="big-label">total voting records</p>
+      </div>
+      <div class="card" style="text-align:center; padding:1rem;">
+        <p class="big-number accent2">57,477</p>
+        <p class="big-label">battles with full text (prompt + responses)</p>
+      </div>
+      <div class="grid-2" style="margin-top:0.5rem;">
+        <div class="card" style="text-align:center; padding:0.7rem;">
+          <p style="font-size:2rem; font-weight:800; color:var(--green);">64</p>
+          <p class="big-label">models</p>
+        </div>
+        <div class="card" style="text-align:center; padding:0.7rem;">
+          <p style="font-size:2rem; font-weight:800; color:var(--yellow);">Elo</p>
+          <p class="big-label">Bradley-Terry ratings</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: Arena Data Example ==================== -->
+<div class="slide" id="s8">
+  <h2>Arena Data: What Each Battle Looks Like</h2>
+
+  <div class="card" style="margin-bottom:0.8rem;">
+    <p class="dim small" style="margin-bottom:0.5rem;">Each of the 57,477 records contains:</p>
     <table>
-      <thead><tr><th>Task Category</th><th>Top Model (human votes)</th><th>Win Rate</th></tr></thead>
-      <tbody>
-        <tr><td>Coding & Debugging</td><td>gpt-3.5-turbo-0314</td><td>61.2%</td></tr>
-        <tr><td>Creative Writing</td><td>gpt-3.5-turbo-0314</td><td>61.7%</td></tr>
-        <tr><td>Information Seeking</td><td>gpt-3.5-turbo-0314</td><td>60.0%</td></tr>
-        <tr><td>Reasoning</td><td><strong>gpt-4-1106-preview</strong></td><td>60.2%</td></tr>
-        <tr><td>Mathematics</td><td>gpt-3.5-turbo-0314</td><td>75.0%</td></tr>
-        <tr><td>Role-Playing</td><td>mpt-30b-chat</td><td>70.0%</td></tr>
-        <tr><td>Translation</td><td>gpt-4-0613</td><td>58.3%</td></tr>
-      </tbody>
+      <tr><th style="width:20%;">Field</th><th>Example Value</th></tr>
+      <tr><td class="accent">prompt</td><td>"Is it morally right to try to have a certain percentage of females on managerial positions?"</td></tr>
+      <tr><td class="accent2">model_a</td><td>gpt-4-1106-preview <span class="dim">(hidden from user during vote)</span></td></tr>
+      <tr><td class="accent2">model_b</td><td>gpt-4-0613 <span class="dim">(hidden from user during vote)</span></td></tr>
+      <tr><td>response_a</td><td class="small">"The question of whether it is morally right to aim for a certain percentage..." (full text)</td></tr>
+      <tr><td>response_b</td><td class="small">"As an AI, I don't have personal beliefs..." (full text)</td></tr>
+      <tr><td class="green">winner</td><td><strong>model_a</strong> &nbsp; <span class="dim">← the human's stated preference</span></td></tr>
     </table>
   </div>
-  <div class="card card-glow-blue frag-pop" data-step="2" style="margin-top:1rem;">
-    <strong>Key insight:</strong> The aggregate Elo champion (gpt-4-1106-preview, Elo 1235) only leads in <strong>Reasoning</strong>. A single leaderboard number does not tell the full story.
-  </div>
-</div>
 
-<!-- ==================== SLIDE 14: SUMMARY ==================== -->
-<div class="slide" data-steps="5">
-  <h2 class="frag" data-step="0">Summary</h2>
-  <div class="rq frag-pop" data-step="1" style="margin:1rem auto 1.5rem;">
-    Can an LLM judge capture human preferences? &nbsp;<strong style="font-size:1.5rem;">It depends on the task.</strong>
-  </div>
-  <div class="cols cols-3">
-    <div class="card card-glow-green frag-left" data-step="2">
-      <h3 style="color:var(--green);">1. Overall: Yes</h3>
-      <p>LLM judge scores correlate strongly with human Elo (r = 0.95), driven by large inter-model gaps.</p>
-    </div>
-    <div class="card card-glow-yellow frag" data-step="3">
-      <h3 style="color:var(--yellow);">2. Per Category: It Varies</h3>
-      <p>Agreement ranges from r = 0.75 (reasoning) to r = 0.15 (translation). The LLM judge is reliable for some tasks but not others.</p>
-    </div>
-    <div class="card card-glow-red frag-right" data-step="4">
-      <h3 style="color:var(--red);">3. Rankings Shift</h3>
-      <p>The best overall model is not the best in most categories. Aggregate scores hide task-specific strengths.</p>
+  <div class="frag">
+    <div class="highlight-box">
+      <p><strong>Elo Rating</strong> = aggregate all 1.7M votes using the Bradley-Terry model to produce a single ranking score per model. <span class="dim">P(A beats B) = 1 / (1 + 10<sup>(Elo_B - Elo_A)/400</sup>)</span>. Higher Elo = humans preferred this model more often overall.</p>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 15: ONGOING ==================== -->
-<div class="slide" data-steps="3">
-  <h2 class="frag" data-step="0">Ongoing Work</h2>
-  <div class="cols cols-2">
-    <div class="card card-glow-green frag-left" data-step="1">
-      <h3 style="color:var(--green);"><span class="check">&check;</span> Completed</h3>
-      <ul>
-        <li>Arena 57.5K: task categorization, per-category win rates</li>
-        <li>Elo ratings via Bradley-Terry model</li>
-        <li>Cross-benchmark correlation &mdash; overall and per category</li>
-        <li>7 visualizations (heatmaps, scatter plots, bar charts)</li>
-      </ul>
+<!-- ==================== SLIDE 9: What We Do ==================== -->
+<div class="slide" id="s9">
+  <h2>Our Approach: Applying WildBench's Method to Arena Data</h2>
+
+  <div class="grid-2">
+    <div>
+      <h3>1. Apply LLM-as-Judge on Arena Battles</h3>
+      <div class="card">
+        <p style="font-size:0.95rem;">For each Arena battle, we feed the <strong>same prompt + response_a + response_b</strong> to an LLM judge and ask: <em>"Which response is better?"</em></p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">Now each battle has <strong>two verdicts</strong>:</p>
+        <div style="margin-top:0.5rem;">
+          <p><span class="green">Human vote:</span> A wins / B wins / Tie</p>
+          <p><span class="accent2">LLM judge:</span> A wins / B wins / Tie</p>
+        </div>
+        <p class="dim small" style="margin-top:0.5rem;">We use GPT-4o-mini as judge (cost: ~$23 for full dataset)</p>
+      </div>
     </div>
-    <div class="card card-glow-blue frag-right" data-step="2">
-      <h3>In Progress</h3>
-      <ol>
-        <li>Per-category Elo (fairer than raw win rate)</li>
-        <li>1.7M Arena voting records for robust estimates</li>
-        <li>AlpacaEval 2 integration for three-way comparison</li>
-        <li>Bootstrap confidence intervals</li>
-        <li>Improved categorization coverage (40% &rarr; target 70%+)</li>
-        <li>Full PySpark pipeline at scale</li>
-      </ol>
+    <div>
+      <h3>2. Apply Task Category Breakdown</h3>
+      <div class="card">
+        <p style="font-size:0.95rem;">We classify each Arena prompt into WildBench's task categories using keyword matching:</p>
+        <div style="margin-top:0.5rem;">
+          <p class="small"><span class="mono">"Write python code..."</span> → <span class="tag tag-purple">Coding</span></p>
+          <p class="small"><span class="mono">"Solve this integral..."</span> → <span class="tag tag-purple">Math</span></p>
+          <p class="small"><span class="mono">"Translate to French..."</span> → <span class="tag tag-purple">Translation</span></p>
+          <p class="small"><span class="mono">"Write me a poem..."</span> → <span class="tag tag-purple">Creative Writing</span></p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0.5rem;">
+        <p style="font-size:0.95rem;"><strong>Key question:</strong> compute <span class="accent">agreement rate</span> between LLM judge and human per category. Does the LLM judge agree with humans on coding tasks? Math? Translation?</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== SLIDE 16: THANK YOU ==================== -->
-<div class="slide slide-hero center" data-steps="2">
-  <h1 class="frag-pop" data-step="0">Thank You</h1>
-  <p class="subtitle frag" data-step="1">Questions?</p>
-  <div class="frag-fade" data-step="1" style="margin-top:1.5rem; font-size:0.8rem; color:var(--text-dim); line-height:2;">
-    Lin et al., "WildBench," ICLR 2025 (Spotlight)<br>
-    Chiang et al., "Chatbot Arena," ICML 2024<br>
-    Dubois et al., "AlpacaEval 2," COLM 2024
+<!-- ==================== SLIDE 10: Results Title ==================== -->
+<div class="slide" id="s10">
+  <div style="text-align:center; margin-top:5vh;">
+    <p class="dim" style="font-size:1rem; margin-bottom:1rem;">Part III</p>
+    <h1 style="font-size:4rem;">Results</h1>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: WildBench's Original Result ==================== -->
+<div class="slide" id="s11">
+  <h2>WildBench's Reported Correlation (Original Result)</h2>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <h3 style="color:var(--text);">What WildBench Reports</h3>
+        <table>
+          <tr><th>Comparison</th><th>Pearson r</th></tr>
+          <tr><td>WB-Reward vs Arena Elo (top 6)</td><td class="green">0.984</td></tr>
+          <tr><td>WB-Reward vs Arena Elo (all 14)</td><td class="green">0.973</td></tr>
+          <tr><td>WB-Score vs Arena Elo (all 14)</td><td class="green">0.940</td></tr>
+        </table>
+        <p class="dim small" style="margin-top:0.5rem;">From WildBench Table 3 (Lin et al., 2025)</p>
+      </div>
+    </div>
+    <div>
+      <div class="highlight-box warn">
+        <h3 style="color:var(--yellow);">Why This Is Misleading</h3>
+        <p style="margin-bottom:0.5rem;"><strong>Model-level, not task/prompt-level.</strong></p>
+        <p style="font-size:0.95rem;">Each model gets <strong>one overall WB-Score</strong> and <strong>one Elo</strong>. The correlation is computed across just <strong>14 (x, y) pairs</strong>.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">This mainly captures <strong>cross-model differences</strong> — every benchmark agrees that GPT-4 &gt; Llama-2. The large inter-model gaps inflate the correlation.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;">It tells us nothing about whether the LLM judge agrees with humans on <span class="accent">individual prompts</span> or <span class="accent">specific task types</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="frag">
+    <div class="fig-container">
+      <img src="figures/cross_benchmark.png" alt="Cross-benchmark correlation" style="max-height:30vh;">
+      <p class="dim small">Our replication: r = 0.954 with 12 overlapping models — confirming the high aggregate correlation</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: Our Results — Battle-Level Agreement ==================== -->
+<div class="slide" id="s12">
+  <h2>Our Results: Battle-Level LLM Judge vs Human Agreement</h2>
+  <p class="dim" style="margin-bottom:0.5rem;">We ran GPT-4o-mini as judge on 800 Arena battles (100 per category) and compared with human votes.</p>
+
+  <div class="grid-2">
+    <div>
+      <div class="fig-container">
+        <img src="figures/llm_judge_agreement.png" alt="Agreement by category" style="max-height:45vh;">
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3 style="color:var(--text);">Key Findings</h3>
+        <p style="font-size:0.95rem;"><span class="green">Highest agreement:</span> Information Seeking (78.9%) and Mathematics (76.4%) — factual, objective tasks where correctness is clear.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;"><span class="red">Lowest agreement:</span> Creative Writing (58.1%) — subjective tasks where "better" is ambiguous.</p>
+        <p style="font-size:0.95rem; margin-top:0.5rem;"><span class="yellow">Overall:</span> 49.2% raw agreement, but 69.5% excluding ties — because the LLM judge almost never says "Tie" while humans say Tie 32% of the time.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.5rem;">
+        <p style="font-size:0.95rem;"><strong>The pattern:</strong> LLM judges agree with humans more on <span class="green">objective tasks</span> (info seeking, math, coding) and less on <span class="red">subjective tasks</span> (creative writing, role-playing).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: Confusion Matrix ==================== -->
+<div class="slide" id="s13">
+  <h2>Diagnosis: Why Raw Agreement Is Low</h2>
+
+  <div class="grid-2">
+    <div>
+      <div class="fig-container">
+        <img src="figures/llm_judge_confusion.png" alt="Confusion matrix" style="max-height:42vh;">
+      </div>
+    </div>
+    <div>
+      <div class="fig-container">
+        <img src="figures/llm_judge_tie_rate.png" alt="Tie rate comparison" style="max-height:42vh;">
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0.8rem;">
+    <h3 style="color:var(--text);">The Tie Problem</h3>
+    <div class="grid-3">
+      <div>
+        <p class="small"><span class="green">Human voters</span> say "Tie" <strong>31.8%</strong> of the time (254/800 battles). Many battles are genuinely close.</p>
+      </div>
+      <div>
+        <p class="small"><span class="accent2">LLM judge</span> says "Tie" only <strong>1.6%</strong> of the time (13/800). It almost always picks a winner — even when humans couldn't decide.</p>
+      </div>
+      <div>
+        <p class="small"><span class="yellow">Implication:</span> The LLM judge is <strong>overconfident</strong>. When humans tie, the judge's forced choice is essentially random — dragging down agreement.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: Per-Category Detail ==================== -->
+<div class="slide" id="s14">
+  <h2>Per-Category Breakdown: Where Does the Judge Fail?</h2>
+
+  <table style="font-size:0.95rem;">
+    <tr>
+      <th>Category</th>
+      <th>n</th>
+      <th>Raw Agreement</th>
+      <th>Agreement (excl. ties)</th>
+      <th>Interpretation</th>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">Information Seeking</span></td>
+      <td>100</td>
+      <td>56.0%</td>
+      <td class="green">78.9%</td>
+      <td class="small">Factual questions — clear right/wrong answers</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">Mathematics</span></td>
+      <td>100</td>
+      <td>56.0%</td>
+      <td class="green">76.4%</td>
+      <td class="small">Objective correctness, verifiable solutions</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">Coding &amp; Debugging</span></td>
+      <td>100</td>
+      <td>50.0%</td>
+      <td class="green">72.7%</td>
+      <td class="small">Code correctness is mostly objective</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">Reasoning</span></td>
+      <td>100</td>
+      <td>53.0%</td>
+      <td>71.6%</td>
+      <td class="small">Logical arguments — partially objective</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">Summarization</span></td>
+      <td>100</td>
+      <td>52.0%</td>
+      <td>70.3%</td>
+      <td class="small">Moderate — accuracy matters but style varies</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">Role-Playing</span></td>
+      <td>100</td>
+      <td>47.0%</td>
+      <td class="yellow">66.7%</td>
+      <td class="small">Subjective — depends on persona, creativity</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">Translation</span></td>
+      <td>100</td>
+      <td>43.0%</td>
+      <td class="yellow">66.1%</td>
+      <td class="small">Requires cross-lingual competence</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">Creative Writing</span></td>
+      <td>100</td>
+      <td>37.0%</td>
+      <td class="red">58.1%</td>
+      <td class="small">Highly subjective — "better" is personal taste</td>
+    </tr>
+  </table>
+
+  <div class="highlight-box" style="margin-top:1rem;">
+    <p><strong>Takeaway:</strong> The LLM judge is a reasonable proxy for human preference on objective tasks (70-79% agreement), but <span class="red">unreliable for subjective tasks</span> like creative writing (58% — barely above random).</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: Ongoing & Future ==================== -->
+<div class="slide" id="s15">
+  <h2>Ongoing &amp; Future Work</h2>
+
+  <div class="grid-2">
+    <div>
+      <h3>Ongoing</h3>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent">1. Full-scale evaluation</span></p>
+        <p class="small">Run GPT-4o-mini judge on all 57,477 Arena battles (~$23) instead of the 800-sample pilot.</p>
+      </div>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent">2. Per-category WildBench scores</span></p>
+        <p class="small">Load WildBench's per-category WB-Scores (not just overall) for a fairer category-to-category comparison with Arena.</p>
+      </div>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent">3. AlpacaEval 2 triangulation</span></p>
+        <p class="small">Add length-controlled win rates from AlpacaEval 2 as a third evaluation perspective.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Future Directions</h3>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent2">1. Checklist ablation</span></p>
+        <p class="small">Run the same judge with and without checklists on Arena data — does the checklist actually improve agreement?</p>
+      </div>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent2">2. Judge model comparison</span></p>
+        <p class="small">Compare GPT-4o-mini vs GPT-4-turbo vs Claude as judge — does a stronger judge agree more with humans?</p>
+      </div>
+      <div class="card">
+        <p style="margin-bottom:0.5rem;"><span class="accent2">3. Elo gap analysis</span></p>
+        <p class="small">Does the LLM judge agree with humans more on "easy" battles (large Elo gap between models) vs "hard" battles (close Elo)?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 16: Conclusion ==================== -->
+<div class="slide" id="s16">
+  <div style="text-align:center;">
+    <h1 style="font-size:3rem; margin-bottom:2rem;">Summary</h1>
+    <div style="max-width:800px; margin:0 auto; text-align:left;">
+      <div class="card" style="margin-bottom:1rem;">
+        <p style="font-size:1.1rem;"><span class="accent">Question:</span> Can LLM judgment capture human preference across task categories?</p>
+      </div>
+      <div class="card" style="margin-bottom:1rem;">
+        <p style="font-size:1.1rem;"><span class="green">Finding 1:</span> The reported r = 0.95 correlation is based on 14 model-level aggregate points — it masks category-level variation.</p>
+      </div>
+      <div class="card" style="margin-bottom:1rem;">
+        <p style="font-size:1.1rem;"><span class="yellow">Finding 2:</span> At the individual battle level, LLM-human agreement ranges from <span class="green">79%</span> (information seeking) to <span class="red">58%</span> (creative writing).</p>
+      </div>
+      <div class="card" style="margin-bottom:1rem;">
+        <p style="font-size:1.1rem;"><span class="accent2">Finding 3:</span> The LLM judge is overconfident — it says "Tie" 1.6% vs humans' 31.8%, suggesting it forces decisions on ambiguous battles.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:1rem;">
+        <p style="font-size:1.15rem; text-align:center;"><strong>LLM judges can partially substitute for human evaluation on objective tasks,<br>but should not be trusted for subjective tasks like creative writing.</strong></p>
+      </div>
+    </div>
+    <p class="dim" style="margin-top:2rem; font-size:0.95rem;">Thank you — Questions?</p>
   </div>
 </div>
 
 </div><!-- /deck -->
 
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter"></div>
+<div class="hint">Click / Arrow keys to navigate</div>
+
 <script>
-(() => {
-  const slides = [...document.querySelectorAll('.slide')];
+  const slides = document.querySelectorAll('.slide');
   const total = slides.length;
-  let cur = 0;       // current slide index
-  let step = -1;     // current fragment step (-1 = none shown yet)
+  let cur = 0;
 
-  const progress = document.getElementById('progress');
-  const counter = document.getElementById('counter');
+  function fragsOf(s) { return Array.from(s.querySelectorAll('.frag, .frag-pop, .frag-left, .frag-right, .frag-fade')); }
+  function shownFrags(s) { return fragsOf(s).filter(f => f.classList.contains('show')); }
+  function hiddenFrags(s) { return fragsOf(s).filter(f => !f.classList.contains('show')); }
 
-  function getSteps(i) {
-    return parseInt(slides[i].dataset.steps || '0');
-  }
-
-  function showFrags(slideEl, upToStep) {
-    slideEl.querySelectorAll('[data-step]').forEach(el => {
-      const s = parseInt(el.dataset.step);
-      if (s <= upToStep) {
-        el.classList.add('show');
-      } else {
-        el.classList.remove('show');
-      }
+  function show(i, dir) {
+    slides.forEach((s, j) => {
+      s.classList.remove('active','exit-left');
+      if (j === i) s.classList.add('active');
+      else if (j < i) s.classList.add('exit-left');
     });
-  }
-
-  function goTo(index, direction) {
-    if (index < 0 || index >= total) return;
-
-    slides.forEach((s, i) => {
-      s.classList.remove('active', 'exit-left');
-      if (i === index) {
-        s.classList.add('active');
-      } else if (i < index) {
-        s.classList.add('exit-left');
-      }
-    });
-
-    cur = index;
-    step = -1;
-    // Reset all fragments
-    showFrags(slides[cur], -1);
-
-    updateUI();
+    cur = i;
+    document.getElementById('progress').style.width = ((i+1)/total*100)+'%';
+    document.getElementById('counter').textContent = (i+1)+' / '+total;
   }
 
   function next() {
-    const maxStep = getSteps(cur) - 1;
-    if (step < maxStep) {
-      step++;
-      showFrags(slides[cur], step);
-      updateUI();
-    } else if (cur < total - 1) {
-      goTo(cur + 1, 'right');
-      // Auto-advance to first fragment
-      if (getSteps(cur) > 0) {
-        step = 0;
-        showFrags(slides[cur], 0);
-        updateUI();
-      }
-    }
+    const hf = hiddenFrags(slides[cur]);
+    if (hf.length) { hf[0].classList.add('show'); return; }
+    if (cur < total-1) { show(cur+1, 1); }
   }
 
   function prev() {
-    if (step > 0) {
-      step--;
-      showFrags(slides[cur], step);
-      updateUI();
-    } else if (step === 0) {
-      step = -1;
-      showFrags(slides[cur], -1);
-      updateUI();
-    } else if (cur > 0) {
-      goTo(cur - 1, 'left');
-      // Show all fragments of previous slide
-      const maxStep = getSteps(cur) - 1;
-      step = maxStep;
-      showFrags(slides[cur], step);
-      updateUI();
-    }
+    const sf = shownFrags(slides[cur]);
+    if (sf.length) { sf[sf.length-1].classList.remove('show'); return; }
+    if (cur > 0) { show(cur-1, -1); }
   }
 
-  function updateUI() {
-    const totalSteps = slides.reduce((sum, s) => sum + Math.max(1, parseInt(s.dataset.steps || '1')), 0);
-    let currentStep = 0;
-    for (let i = 0; i < cur; i++) {
-      currentStep += Math.max(1, parseInt(slides[i].dataset.steps || '1'));
-    }
-    currentStep += Math.max(0, step + 1);
-
-    progress.style.width = (currentStep / totalSteps * 100) + '%';
-    counter.textContent = (cur + 1) + ' / ' + total;
-  }
-
-  // Keyboard
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); next(); }
-    else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prev(); }
-    else if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); next(); }
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
-    else if (e.key === 'Home') { e.preventDefault(); goTo(0); step = 0; showFrags(slides[0], 0); updateUI(); }
-    else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); const ms = getSteps(cur) - 1; step = ms; showFrags(slides[cur], ms); updateUI(); }
+    if (e.key==='ArrowRight'||e.key===' '||e.key==='Enter') { e.preventDefault(); next(); }
+    if (e.key==='ArrowLeft'||e.key==='Backspace') { e.preventDefault(); prev(); }
+    if (e.key==='Home') { e.preventDefault(); show(0); }
+    if (e.key==='End') { e.preventDefault(); show(total-1); }
   });
 
-  // Click (left half = prev, right half = next)
   document.addEventListener('click', e => {
-    if (e.target.closest('a, button')) return;
-    if (e.clientX < window.innerWidth * 0.3) prev();
-    else next();
+    if (e.clientX > window.innerWidth * 0.3) next(); else prev();
   });
 
-  // Touch swipe
+  // Touch support
   let touchX = 0;
-  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; });
   document.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+    if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
   });
 
-  // Init
-  goTo(0);
-  step = 0;
-  showFrags(slides[0], 0);
-  updateUI();
-})();
+  show(0);
 </script>
-
 </body>
 </html>
