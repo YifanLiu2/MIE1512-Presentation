@@ -176,9 +176,9 @@
 
   <div class="example-box" style="margin-bottom:0.8rem;">
     <div class="example-label dim">Example: User asks an LLM</div>
-    <p><span class="accent">User:</span> "Write a Python function that checks if a string is a valid email address."</p>
-    <p style="margin-top:0.4rem;"><span class="accent2">LLM Response:</span> <span class="mono" style="font-size:0.85rem;">def is_valid_email(s): return bool(re.match(r'^[\w.-]+@[\w.-]+\.\w+$', s))</span></p>
-    <p class="dim small" style="margin-top:0.3rem;">Is this response good? Does it handle edge cases? Is it what the user wanted?</p>
+    <p><span class="accent">User:</span> "Why do leaves change color in autumn?"</p>
+    <p style="margin-top:0.4rem;"><span class="accent2">LLM Response:</span> "As days shorten, trees stop producing chlorophyll, revealing yellow and orange pigments (carotenoids) that were masked. Red colors come from anthocyanins produced in response to bright light and cool temperatures."</p>
+    <p class="dim small" style="margin-top:0.3rem;">Is this response accurate? Complete? Easy to understand? How do we evaluate quality at scale?</p>
   </div>
 
   <div class="frag">
@@ -277,16 +277,16 @@
       <h3>Evaluation Procedure (Example)</h3>
       <div class="example-box" style="font-size:0.85rem;">
         <div class="example-label" style="color:var(--accent);">Step 1: User Prompt</div>
-        <p class="mono">"Write a Python function to check if a string is a valid email."</p>
+        <p>"Why do leaves change color in autumn?"</p>
       </div>
       <div class="example-box llm" style="font-size:0.85rem;">
         <div class="example-label" style="color:var(--accent2);">Step 2: Auto-Generate Checklist</div>
-        <p>GPT-4-turbo creates criteria for this specific task:</p>
+        <p>GPT-4-turbo creates criteria for this specific question:</p>
         <ul class="small" style="margin-top:0.3rem;">
-          <li>Does it use proper regex pattern?</li>
-          <li>Does it handle edge cases (empty string, special chars)?</li>
-          <li>Does it return a boolean?</li>
-          <li>Is the code readable and well-structured?</li>
+          <li>Does it explain the role of chlorophyll?</li>
+          <li>Does it mention carotenoids and anthocyanins?</li>
+          <li>Is the explanation scientifically accurate?</li>
+          <li>Is it clear and easy to understand?</li>
         </ul>
       </div>
       <div class="example-box response" style="font-size:0.85rem;">
@@ -299,7 +299,7 @@
       <div class="card">
         <p><span class="accent">WB-Score</span> (Pointwise)</p>
         <p class="small" style="margin-top:0.3rem;">Rate a single response on a <strong>1-10 scale</strong>.</p>
-        <p class="small dim" style="margin-top:0.2rem;">e.g., "This email validator scores 7/10 — correct regex but no edge case handling."</p>
+        <p class="small dim" style="margin-top:0.2rem;">e.g., "This explanation scores 7/10 — accurate but misses anthocyanins."</p>
       </div>
       <div class="card">
         <p><span class="accent2">WB-Reward</span> (Pairwise)</p>
@@ -336,20 +336,20 @@
 
   <div class="example-box" style="margin-bottom:0.6rem;">
     <div class="example-label dim">User Prompt</div>
-    <p>"Write a Python function to check if a string is a valid email address."</p>
+    <p>"Why do leaves change color in autumn?"</p>
   </div>
 
   <div class="grid-2">
     <div>
       <div class="card">
         <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent">Model A</span> response:</p>
-        <p class="mono small">def is_valid(s):<br>&nbsp;&nbsp;return '@' in s</p>
+        <p class="small" style="font-style:italic;">"Leaves change color because of the weather getting colder. The green color fades and other colors show up."</p>
         <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
           <p class="small dim">Checklist evaluation:</p>
-          <p class="small"><span class="red">&#x2717;</span> Proper regex? No, just checks '@'</p>
-          <p class="small"><span class="red">&#x2717;</span> Edge cases? No</p>
-          <p class="small"><span class="green">&#x2713;</span> Returns boolean? Yes</p>
-          <p class="small"><span class="green">&#x2713;</span> Readable? Yes</p>
+          <p class="small"><span class="red">&#x2717;</span> Explains chlorophyll role? No</p>
+          <p class="small"><span class="red">&#x2717;</span> Mentions pigments by name? No</p>
+          <p class="small"><span class="yellow">~</span> Scientifically accurate? Vague</p>
+          <p class="small"><span class="green">&#x2713;</span> Easy to understand? Yes</p>
           <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="yellow">4 / 10</span></p>
         </div>
       </div>
@@ -357,14 +357,14 @@
     <div>
       <div class="card">
         <p style="font-weight:600; margin-bottom:0.5rem;"><span class="accent2">Model B</span> response:</p>
-        <p class="mono small">import re<br>def is_valid(s):<br>&nbsp;&nbsp;return bool(re.match(<br>&nbsp;&nbsp;&nbsp;&nbsp;r'^[\w.-]+@[\w.-]+\.\w+$', s))</p>
+        <p class="small" style="font-style:italic;">"As days shorten, trees stop producing chlorophyll, revealing carotenoids (yellow/orange). Red comes from anthocyanins, produced in response to bright light and cool nights."</p>
         <div style="margin-top:0.6rem; border-top:1px solid var(--surface3); padding-top:0.5rem;">
           <p class="small dim">Checklist evaluation:</p>
-          <p class="small"><span class="green">&#x2713;</span> Proper regex? Yes</p>
-          <p class="small"><span class="yellow">~</span> Edge cases? Partial</p>
-          <p class="small"><span class="green">&#x2713;</span> Returns boolean? Yes</p>
-          <p class="small"><span class="green">&#x2713;</span> Readable? Yes</p>
-          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="green">7 / 10</span></p>
+          <p class="small"><span class="green">&#x2713;</span> Explains chlorophyll role? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Mentions pigments by name? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Scientifically accurate? Yes</p>
+          <p class="small"><span class="green">&#x2713;</span> Easy to understand? Yes</p>
+          <p style="margin-top:0.5rem; font-weight:700;">WB-Score: <span class="green">9 / 10</span></p>
         </div>
       </div>
     </div>
@@ -372,7 +372,7 @@
 
   <div class="frag">
     <div class="highlight-box" style="margin-top:0.6rem;">
-      <p><span class="accent2">WB-Reward (pairwise):</span> Model B is <span class="green">"Slightly Better"</span> than Model A. &nbsp;|&nbsp; <span class="dim">Both scores are generated entirely by GPT-4-turbo — no human involved.</span></p>
+      <p><span class="accent2">WB-Reward (pairwise):</span> Model B is <span class="green">"Much Better"</span> than Model A. &nbsp;|&nbsp; <span class="dim">Both scores are generated entirely by GPT-4-turbo — no human involved.</span></p>
     </div>
   </div>
 </div>
